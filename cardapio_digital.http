@@ -1,0 +1,6 @@
+@cardapio_digital_HostAddress = http://localhost:5042
+
+GET {{cardapio_digital_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
