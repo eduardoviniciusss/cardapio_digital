@@ -12,18 +12,19 @@ namespace cardapio_digital.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Produtos",
+                name: "escolas",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Nome = table.Column<string>(type: "text", nullable: true),
-                    Tipo = table.Column<string>(type: "text", nullable: true),
-                    Preco = table.Column<decimal>(type: "numeric", nullable: true)
+                    nome = table.Column<string>(type: "text", nullable: true),
+                    endereco = table.Column<string>(type: "text", nullable: true),
+                    telefone = table.Column<string>(type: "text", nullable: true),
+                    turno = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Produtos", x => x.Id);
+                    table.PrimaryKey("pk_escolas", x => x.id);
                 });
         }
 
@@ -31,7 +32,7 @@ namespace cardapio_digital.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Produtos");
+                name: "escolas");
         }
     }
 }

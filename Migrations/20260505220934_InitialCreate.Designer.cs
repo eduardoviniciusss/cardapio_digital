@@ -11,7 +11,7 @@ using cardapio_digital;
 namespace cardapio_digital.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260428150938_InitialCreate")]
+    [Migration("20260505220934_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -24,26 +24,35 @@ namespace cardapio_digital.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("cardapio_digital.Entities.Produto", b =>
+            modelBuilder.Entity("cardapio_digital.Entities.Escola", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Endereco")
+                        .HasColumnType("text")
+                        .HasColumnName("endereco");
+
                     b.Property<string>("Nome")
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("nome");
 
-                    b.Property<decimal?>("Preco")
-                        .HasColumnType("numeric");
+                    b.Property<string>("Telefone")
+                        .HasColumnType("text")
+                        .HasColumnName("telefone");
 
-                    b.Property<string>("Tipo")
-                        .HasColumnType("text");
+                    b.Property<string>("Turno")
+                        .HasColumnType("text")
+                        .HasColumnName("turno");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_escolas");
 
-                    b.ToTable("Produtos");
+                    b.ToTable("escolas", (string)null);
                 });
 #pragma warning restore 612, 618
         }

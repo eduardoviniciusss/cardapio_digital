@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using cardapio_digital;
 using cardapio_digital.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,8 @@ builder.Services.AddSwaggerGen();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+          .UseSnakeCaseNamingConvention ());
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
@@ -37,77 +39,84 @@ app.MapGet("/healthy", () =>
         return result;
 });
 
-app.MapGet("/produto", async (AppDbContext db) =>
+//GET
+app.MapGet("/escola", async (AppDbContext db) =>
 {
-    return await db.Produtos.ToListAsync();
+   return await db.Escolas.ToListAsync(); 
 });
 
-//GET com id
-app.MapGet("/produto/{id}" , async (AppDbContext db,int id) => 
+//GET ID
+app.MapGet("/escola/{id}", async (int id, AppDbContext db) =>
 {
-    var produto = await db.Produtos.FindAsync(id);
-    return produto;
+    var escola = await db.Escolas.FindAsync(id);
+
+    return escola;
 });
 
 //POST
-app.MapPost("/produto", async (AppDbContext db,ProdutoDto dto) =>
+app.MapPost("/escola",async(AppDbContext db,EscolaDto dto) =>
 {
-    var novaProduto = new Produto
+    var escola = new Escola
     {
-        Nome = dto.Nome,
-        Tipo = dto.Tipo,
-        Preco = dto.Preco
+       Nome = dto.Nome,
+       Endereco = dto.Endereco,
+       Telefone = dto.Telefone,
+       Turno = dto.Turno 
     };
-    db.Produtos.Add(novaProduto);
+
+    db.Escolas.Add(escola);
     await db.SaveChangesAsync();
-    return Results.Created($"/produto/{novaProduto.Id}", novaProduto);
+    return Results.Created($"/escola/{escola.Id}",escola);
 });
 
 //PUT
-app.MapPut("/produto/{id}", async (int id,AppDbContext db,ProdutoDto dto) =>
+app.MapPut("/escola{id}", async (int id, AppDbContext db, EscolaDto dto) => 
 {
-    var produto = await db.Produtos.FindAsync(id);
-    if (produto is null) return Results.NotFound();
+   var escola = await db.Escolas.FindAsync(id);
+   if (escola is null) return Results.NotFound();
+   
+   escola.Nome = dto.Nome;
+   escola.Endereco = dto.Endereco;
+   escola.Telefone = dto.Telefone;
+   escola.Turno = dto.Turno;
 
-    produto.Nome = dto.Nome;
-    produto.Tipo = dto.Tipo;
-    produto.Preco = dto.Preco;
-
-    await db.SaveChangesAsync();
-    return Results.Ok(produto);
-
+   await db.SaveChangesAsync();
+   return Results.Ok(escola); 
 });
 
-app.MapPatch("/produto/{id}", async (int id, AppDbContext db, ProdutoDto dto) =>
+app.MapPatch("/escola/{id}", async (int id, AppDbContext db, EscolaDto dto) =>
 {
-    var produto = await db.Produtos.FindAsync(id);
-    if (produto is null)
+    var escola = await db.Escolas.FindAsync(id);
+    if (escola is null)
         return Results.NotFound();
 
     if (dto.Nome is not null)
-        produto.Nome = dto.Nome;
+        escola.Nome = dto.Nome;
 
-    if (dto.Tipo is not null)
-        produto.Tipo = dto.Tipo;
+    if (dto.Endereco is not null)
+        escola.Endereco = dto.Endereco;
 
-    if (dto.Preco is not null)
-        produto.Preco = dto.Preco;
+    if (dto.Telefone is not null)
+        escola.Telefone = dto.Telefone;
+
+    if (dto.Turno is not null)
+        escola.Turno = dto.Turno;
 
     await db.SaveChangesAsync();
 
-    return Results.Ok(produto);
+    return Results.Ok(escola);
 });
 
-//DELETE
-app.MapDelete("/produto/{id}", async (int id,AppDbContext db ) =>
+app.MapDelete("/escola/{id}", async (int id,AppDbContext db ) =>
 {
-    var produto = await db.Produtos.FindAsync(id);
-    if (produto is null) return Results.NotFound("Produto não existente!");
+    var escola = await db.Escolas.FindAsync(id);
+    if (escola is null) return Results.NotFound("Escola não existente!");
 
-    db.Produtos.Remove(produto);
+    db.Escolas.Remove(escola);
     await db.SaveChangesAsync();
     return Results.NoContent();
 });
+
 
 app.Run(); 
 

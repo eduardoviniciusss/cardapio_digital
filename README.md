@@ -1,86 +1,145 @@
-O **Cardápio Digital** é um sistema webapi para gerenciamento de pedidos de uma cantina escolar.
+# 🍽️ Cardápio Digital
 
-A ideia é permitir que **pais façam pedidos de lanches para seus filhos de casa**, enquanto a **cantina recebe e prepara os pedidos** de forma organizada.
+API desenvolvida para gerenciamento de pedidos em uma cantina escolar, permitindo que responsáveis realizem pedidos antecipados enquanto a cantina organiza a produção de forma eficiente.
 
 ---
 
 ## 🎯 Objetivo
 
-Digitalizar o processo de agendamento de lanches escolares, conectando pais e cantinas em uma plataforma integrada, seguindo boas práticas de desenvolvimento do mercado.
+Digitalizar o processo de agendamento de lanches escolares, centralizando a comunicação entre pais e cantinas em uma plataforma única, escalável e baseada em boas práticas de desenvolvimento.
 
 ---
 
-## 🚀 Requisitos Funcionais
+## ⚙️ Funcionalidades
 
-### 🏠 Lado da Cantina
+### 🏫 Cantina
 
-* Cadastro de Cantina (vinculado a uma instituição de ensino)
-* Gestão de Cardápio (CRUD completo)
+* Cadastro de cantina vinculada a uma instituição
+* Gerenciamento de cardápio (CRUD)
 
   * Nome
   * Descrição
   * Preço
   * Categoria
 
-### 👨‍👩‍👧 Lado dos Pais
+### 👨‍👩‍👧 Responsáveis
 
-* Gestão de Alunos (cadastro de filhos e turmas)
-* Agendamento de Lanches (mensal/semanal com calendário)
-* Edição de Pedidos (respeitando horário limite)
-
----
-
-## 🧠 Regras de Negócio
-
-* 🔒 **Segurança de Dados**:
-
-  * Pais só acessam dados dos próprios filhos
-  * Cantina só visualiza pedidos vinculados a ela
-
-* ⏰ **Horário de Corte**:
-
-  * Definição de horário limite (ex: 21:00 do dia anterior)
-  * Após isso, não é possível alterar pedidos
-
-* 📊 **Relatório de Produção**:
-
-  * Sistema soma todos os pedidos
-  * Gera lista de preparo para a cantina
+* Cadastro de alunos (filhos e turmas)
+* Agendamento de pedidos (semanal/mensal)
+* Edição de pedidos com controle de prazo
 
 ---
 
-## 🛠️ Tecnologias utilizadas
+## 🛠️ Tecnologias
 
-* .NET Core
-* Entity Framework
+* .NET 8
+* Entity Framework Core
+* PostgreSQL
 * Git
 
 ---
 
-## 📁 Estrutura atual do projeto
+## 📁 Estrutura do Projeto
 
-* Criação do projeto com .NET Core
-* Endpoint de teste `/healthy`
-* Configuração do `.gitignore` (bin/ e obj/)
-* Integração com Entity Framework
+```bash
+/src
+  /Controllers
+  /Entities
+  /DTOs
+  /Data
+```
 
 ---
 
-## ▶️ Como rodar o projeto
+## ▶️ Como executar o projeto
 
-1. Clone o repositório:
+### 📋 Pré-requisitos
 
-git clone [https://github.com/seu-usuario/cardapio_digital.git](https://github.com/seu-usuario/cardapio_digital.git)
+* .NET SDK 8+
+* PostgreSQL
+* Git
+* VS Code ou Visual Studio
 
-2. Acesse a pasta:
+---
 
+### 📥 Clonar repositório
+
+```bash
+git clone https://github.com/seu-usuario/cardapio_digital.git
 cd cardapio_digital
+```
 
-3. Execute:
+---
 
+### ⚙️ Configurar banco de dados
+
+Crie o banco:
+
+```bash
+cantina_digital
+```
+
+Configure no `appsettings.json`:
+
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Host=localhost;Port=5432;Database=cantina_digital;Username=seu_usuario;Password=sua_senha"
+}
+```
+
+---
+
+### 🧱 Rodar migrations
+
+```bash
+
+dotnet ef database update
+```
+
+---
+
+### ▶️ Executar aplicação
+
+```bash
 dotnet run
+```
 
-## 📌 Status do projeto
+---
+
+### 🌐 Endpoints
+
+Base URL:
+
+```
+http://localhost:5000
+```
+
+Exemplo:
+
+```
+GET /healthy
+```
+
+---
+
+## 🧪 Testes
+
+A API pode ser testada via:
+
+* Swagger (quando habilitado)
+* Postman
+
+---
+
+## ⚠️ Possíveis problemas
+
+* Erro de conexão → revisar connection string
+* Tabelas não existem → rodar migrations
+* Porta em uso → alterar `launchSettings.json`
+
+---
+
+## 📌 Status
 
 🚧 Em desenvolvimento
 
@@ -89,3 +148,4 @@ dotnet run
 ## 👨‍💻 Autor
 
 Eduardo Vinicius
+
