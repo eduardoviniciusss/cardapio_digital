@@ -15,9 +15,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
           .UseSnakeCaseNamingConvention ());
 
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -39,13 +36,13 @@ app.MapGet("/healthy", () =>
         return result;
 });
 
-//GET
+//GET ESCOLA
 app.MapGet("/escola", async (AppDbContext db) =>
 {
    return await db.Escolas.ToListAsync(); 
 });
 
-//GET ID
+//GET ID ESCOLA
 app.MapGet("/escola/{id}", async (int id, AppDbContext db) =>
 {
     var escola = await db.Escolas.FindAsync(id);
@@ -53,9 +50,14 @@ app.MapGet("/escola/{id}", async (int id, AppDbContext db) =>
     return escola;
 });
 
-//POST
+//POST ESCOLA
 app.MapPost("/escola",async(AppDbContext db,EscolaDto dto) =>
 {
+    if (dto.Nome is null || dto.Endereco is null || dto.Telefone is null || dto.Turno is null)
+    {
+        return Results.BadRequest("Todos os campos de escola são obrigatórios.");
+    }
+
     var escola = new Escola
     {
        Nome = dto.Nome,
@@ -69,11 +71,15 @@ app.MapPost("/escola",async(AppDbContext db,EscolaDto dto) =>
     return Results.Created($"/escola/{escola.Id}",escola);
 });
 
-//PUT
-app.MapPut("/escola{id}", async (int id, AppDbContext db, EscolaDto dto) => 
+//PUT ESCOLA
+app.MapPut("/escola/{id}", async (int id, AppDbContext db, EscolaDto dto) => 
 {
    var escola = await db.Escolas.FindAsync(id);
    if (escola is null) return Results.NotFound();
+   if (dto.Nome is null || dto.Endereco is null || dto.Telefone is null || dto.Turno is null)
+   {
+       return Results.BadRequest("Todos os campos de escola são obrigatórios.");
+   }
    
    escola.Nome = dto.Nome;
    escola.Endereco = dto.Endereco;
@@ -84,6 +90,7 @@ app.MapPut("/escola{id}", async (int id, AppDbContext db, EscolaDto dto) =>
    return Results.Ok(escola); 
 });
 
+//PATCH ESCOLA
 app.MapPatch("/escola/{id}", async (int id, AppDbContext db, EscolaDto dto) =>
 {
     var escola = await db.Escolas.FindAsync(id);
@@ -107,6 +114,7 @@ app.MapPatch("/escola/{id}", async (int id, AppDbContext db, EscolaDto dto) =>
     return Results.Ok(escola);
 });
 
+//DELETE 
 app.MapDelete("/escola/{id}", async (int id,AppDbContext db ) =>
 {
     var escola = await db.Escolas.FindAsync(id);
