@@ -1,0 +1,18 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace cardapio_digital.Entities
+{
+    public class Cardapio
+    {
+        public int Id { get; set; }
+
+        public required string Nome { get; set; }
+
+        public int EscolaId { get; set; }
+
+        public Escola Escola { get; set; }= null!;
+    }
+}

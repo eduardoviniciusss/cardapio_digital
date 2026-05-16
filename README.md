@@ -14,28 +14,75 @@ Digitalizar o processo de agendamento de lanches escolares, centralizando a comu
 
 ### 🏫 Cantina
 
-* Cadastro de cantina vinculada a uma instituição
-* Gerenciamento de cardápio (CRUD)
+* Cadastro de escolas
+* Gerenciamento de cardápios
+* Gerenciamento de produtos
+* Organização por categorias
+* Associação de produtos aos cardápios
 
-  * Nome
-  * Descrição
-  * Preço
-  * Categoria
+### 🍔 Produtos
+
+CRUD completo de produtos:
+
+* Nome
+* Descrição
+* Preço
+* Categoria
+
+### 📋 Cardápios
+
+* Cadastro de múltiplos cardápios por escola
+* Associação de produtos em diferentes cardápios
+* Estrutura preparada para promoções e cardápios sazonais
 
 ### 👨‍👩‍👧 Responsáveis
 
-* Cadastro de alunos (filhos e turmas)
-* Agendamento de pedidos (semanal/mensal)
-* Edição de pedidos com controle de prazo
+* Cadastro de alunos
+* Agendamento de pedidos
+* Controle de pedidos por período
+
+---
+
+## 🧠 Modelagem de Dados
+
+O sistema foi modelado utilizando relacionamentos relacionais com foco em escalabilidade e reutilização de dados.
+
+### 🔗 Relacionamentos principais
+
+```txt
+ESCOLA
+   |
+CARDAPIO
+   |
+CARDAPIO_PRODUTO
+   |
+PRODUTO
+   |
+CATEGORIA
+```
+
+### 📌 Regras da modelagem
+
+* Uma escola pode possuir vários cardápios
+* Um cardápio pode possuir vários produtos
+* Um produto pode estar em vários cardápios
+* Produtos pertencem a categorias
+
+### 🗺️ Diagrama da modelagem
+
+👉 https://drawsql.app/teams/eduardovj/diagrams/cardapio-digital
 
 ---
 
 ## 🛠️ Tecnologias
 
 * .NET 8
+* ASP.NET Core Minimal API
 * Entity Framework Core
 * PostgreSQL
+* DrawSQL
 * Git
+* GitHub
 
 ---
 
@@ -47,6 +94,7 @@ Digitalizar o processo de agendamento de lanches escolares, centralizando a comu
   /Entities
   /DTOs
   /Data
+  /Migrations
 ```
 
 ---
@@ -92,7 +140,6 @@ Configure no `appsettings.json`:
 ### 🧱 Rodar migrations
 
 ```bash
-
 dotnet ef database update
 ```
 
@@ -106,17 +153,17 @@ dotnet run
 
 ---
 
-### 🌐 Endpoints
+## 🌐 Endpoints
 
 Base URL:
 
-```
+```txt
 http://localhost:5000
 ```
 
 Exemplo:
 
-```
+```http
 GET /healthy
 ```
 
@@ -126,8 +173,19 @@ GET /healthy
 
 A API pode ser testada via:
 
-* Swagger (quando habilitado)
+* Swagger
 * Postman
+
+---
+
+## 🚀 Melhorias futuras
+
+* Autenticação JWT
+* Controle financeiro do aluno
+* Histórico de pedidos
+* Notificações
+* Dashboard administrativo
+* Upload de imagens dos produtos
 
 ---
 

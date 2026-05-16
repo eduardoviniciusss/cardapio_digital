@@ -11,6 +11,8 @@ namespace cardapio_digital
     {
        public DbSet<Escola> Escolas => Set<Escola>();
 
+       public DbSet<Cardapio> Cardapios => Set<Cardapio>();
+
        public AppDbContext(DbContextOptions<AppDbContext>options):
        base(options){}
     }

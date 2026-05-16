@@ -1,0 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace cardapio_digital.Entities
+{
+    public class CardapioDto
+    {
+        public string? Nome { get; set; }
+
+        public int EscolaId { get; set; }
+    }
+}
