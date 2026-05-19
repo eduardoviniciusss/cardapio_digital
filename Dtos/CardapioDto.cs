@@ -7,7 +7,7 @@ namespace cardapio_digital.Entities
 {
     public class CardapioDto
     {
-        public string? Nome { get; set; }
+        public required string Nome { get; set; }
 
         public int EscolaId { get; set; }
     }

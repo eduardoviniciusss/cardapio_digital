@@ -9,12 +9,12 @@ namespace cardapio_digital.Entities
     public class EscolaDto
     {
         
-        public string? Nome { get; set; }
+        public required string Nome { get; set; }
 
-        public string? Endereco { get; set; } 
+        public required string Endereco { get; set; } 
 
-        public string? Telefone { get; set; } 
+        public required string Telefone { get; set; } 
 
-        public string? Turno { get; set; } 
+        public required string Turno { get; set; } 
     }
 }

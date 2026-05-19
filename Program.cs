@@ -46,13 +46,11 @@ app.MapGet("/escola", async (AppDbContext db) =>
 app.MapGet("/escola/{id}", async (int id, AppDbContext db) =>
 {
     var escola = await db.Escolas.FindAsync(id);
-
     if (escola is null)
     {
         return Results.NotFound("Escola não encontrada.");
     }
-
-    return Results.Ok(escola);
+   return Results.Ok(escola);
 });
 
 //POST ESCOLA
@@ -63,7 +61,6 @@ app.MapPost("/escola", async (AppDbContext db, EscolaDto dto) =>
     {
         return Results.BadRequest("Todos os campos são obrigatórios.");
     }
-
     var escola = new Escola
     {
         Nome = dto.Nome!,
@@ -71,11 +68,8 @@ app.MapPost("/escola", async (AppDbContext db, EscolaDto dto) =>
         Telefone = dto.Telefone!,
         Turno = dto.Turno!
     };
-
     db.Escolas.Add(escola);
-
     await db.SaveChangesAsync();
-
     return Results.Created($"/escola/{escola.Id}", escola);
 });
 
@@ -84,37 +78,29 @@ app.MapPut("/escola/{id}", async (int id, AppDbContext db, EscolaDto dto) =>
 {
     if (await db.Escolas.FindAsync(id) is not Escola escola)
         return Results.NotFound();
-
     escola.Nome = dto.Nome ?? escola.Nome;
     escola.Endereco = dto.Endereco ?? escola.Endereco;
     escola.Telefone = dto.Telefone ?? escola.Telefone;
     escola.Turno = dto.Turno ?? escola.Turno;
-
     await db.SaveChangesAsync();
-
     return Results.Ok(escola);
 });
+
 //PATCH ESCOLA
 app.MapPatch("/escola/{id}", async (int id, AppDbContext db, EscolaDto dto) =>
 {
     var escola = await db.Escolas.FindAsync(id);
     if (escola is null)
         return Results.NotFound();
-
     if (dto.Nome is not null)
         escola.Nome = dto.Nome;
-
     if (dto.Endereco is not null)
         escola.Endereco = dto.Endereco;
-
     if (dto.Telefone is not null)
         escola.Telefone = dto.Telefone;
-
     if (dto.Turno is not null)
         escola.Turno = dto.Turno;
-
     await db.SaveChangesAsync();
-
     return Results.Ok(escola);
 });
 
@@ -123,7 +109,6 @@ app.MapDelete("/escola/{id}", async (int id,AppDbContext db ) =>
 {
     var escola = await db.Escolas.FindAsync(id);
     if (escola is null) return Results.NotFound("Escola não existente!");
-
     db.Escolas.Remove(escola);
     await db.SaveChangesAsync();
     return Results.NoContent();
@@ -141,8 +126,7 @@ app.MapGet("cardapio/{id}", async(int id, AppDbContext db) =>
 {
   var cardapio = await db.Cardapios.Include(c => c.Escola)
   .FirstOrDefaultAsync(c => c.Id == id);
-
-   if (cardapio is null)
+  if (cardapio is null)
     {
         return Results.NotFound("Cardápio não encontrado.");
     }
@@ -156,12 +140,9 @@ app.MapPost("/cardapio", async (AppDbContext db, CardapioDto dto) =>
     {
         return Results.BadRequest("Nome é obrigatório.");
     }
-
-    // verifica se escola existe
+   // verifica se escola existe
     var escolaExiste = await db.Escolas.FindAsync(dto.EscolaId);
-
     if (escolaExiste is null)
-
     {
         return Results.BadRequest("Escola não encontrada.");
     }
@@ -170,7 +151,6 @@ app.MapPost("/cardapio", async (AppDbContext db, CardapioDto dto) =>
         Nome = dto.Nome,
         EscolaId = dto.EscolaId
     };
-
     db.Cardapios.Add(cardapio);
     await db.SaveChangesAsync();
     return Results.Created($"/cardapio/{cardapio.Id}", cardapio);
@@ -184,18 +164,15 @@ app.MapPut("/cardapio/{id}", async (int id, AppDbContext db, CardapioDto dto) =>
     {
         return Results.NotFound();
     }
-
     if (string.IsNullOrWhiteSpace(dto.Nome))
     {
         return Results.BadRequest("Nome é obrigatório.");
     }
-
     var escolaExiste = await db.Escolas.FindAsync(dto.EscolaId);
     if (escolaExiste is null)
     {
         return Results.BadRequest("Escola não encontrada.");
     }
-
     cardapio.Nome = dto.Nome;
     cardapio.EscolaId = dto.EscolaId;
     await db.SaveChangesAsync();
@@ -204,19 +181,16 @@ app.MapPut("/cardapio/{id}", async (int id, AppDbContext db, CardapioDto dto) =>
 
 //PATCH CARDAPIO
 app.MapPatch("/cardapio/{id}", async (int id, AppDbContext db, CardapioDto dto) =>
-    
-{
+    {
     var cardapio = await db.Cardapios.FindAsync(id);
     if (cardapio is null)
     {
         return Results.NotFound();
     }
-
     if (dto.Nome is not null)
     {
         cardapio.Nome = dto.Nome;
     }
-
     if (dto.EscolaId > 0)
     {
         var escolaExiste = await db.Escolas.FindAsync(dto.EscolaId);
@@ -227,7 +201,6 @@ app.MapPatch("/cardapio/{id}", async (int id, AppDbContext db, CardapioDto dto) 
 
         cardapio.EscolaId = dto.EscolaId;
     }
-
     await db.SaveChangesAsync();
     return Results.Ok(cardapio);
 });
@@ -241,15 +214,10 @@ app.MapDelete("/cardapio/{id}", async (int id, AppDbContext db) =>
     {
         return Results.NotFound();
     }
-
     db.Cardapios.Remove(cardapio);
-
     await db.SaveChangesAsync();
-
     return Results.NoContent();
 });
-
-
 
 app.Run(); 
 
