@@ -1,8 +1,10 @@
 using System.Runtime.CompilerServices;
 using cardapio_digital;
 using cardapio_digital.Entities;
+using cardapio_digital.Endpoints;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
+
 
 var builder = WebApplication.CreateBuilder(args); 
 
@@ -35,6 +37,9 @@ app.MapGet("/healthy", () =>
         });
         return result;
 });
+
+app.MapEscolaEndpoints();
+app.MapCardapioEndpoints();
 
 app.Run(); 
 

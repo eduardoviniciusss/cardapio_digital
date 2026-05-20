@@ -19,7 +19,7 @@ app.MapGet("/cardapio", async (AppDbContext db) =>
 });
 
 //GET ID CARDAPIO
-app.MapGet("cardapio/{id}", async(int id, AppDbContext db) =>
+app.MapGet("/cardapio/{id}", async(int id, AppDbContext db) =>
 {
   var cardapio = await db.Cardapios.Include(c => c.Escola)
   .FirstOrDefaultAsync(c => c.Id == id);

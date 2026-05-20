@@ -9,7 +9,7 @@ namespace cardapio_digital.Endpoints
 {
 public static class EscolaEndpoints
 {
-public static void MapCardapioEndpoints(this WebApplication app)
+public static void MapEscolaEndpoints(this WebApplication app)
 {
  //GET ESCOLA
 app.MapGet("/escola", async (AppDbContext db) =>
