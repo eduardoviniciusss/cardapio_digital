@@ -14,16 +14,20 @@ public static void MapCardapioProdutoEndpoints(this WebApplication app)
 // GET CARDAPIO_PRODUTO
 app.MapGet("/cardapio-produto", async (AppDbContext db) =>
 {
-    var cardapioProdutos = await db.CardapioProdutos.Include(cp => cp.Cardapio)
-    .Include(cp => cp.Produto).ToListAsync();
+    var cardapioProdutos = await db.CardapioProdutos
+    .Include(cp => cp.Cardapio).ThenInclude(c => c.Escola)
+    .Include(cp => cp.Produto).ThenInclude(p => p.Categoria)
+    .ToListAsync();
     return Results.Ok(cardapioProdutos);
 });
 
 // GET ID CARDAPIO_PRODUTO
 app.MapGet("/cardapio-produto/{cardapioId}/{produtoId}",async (int cardapioId, int produtoId, AppDbContext db) =>
 {
-    var cardapioProduto = await db.CardapioProdutos.Include(cp => cp.Cardapio).Include
-    (cp => cp.Produto).FirstOrDefaultAsync(cp => cp.CardapioId == cardapioId && cp.ProdutoId == produtoId);
+    var cardapioProduto = await db.CardapioProdutos
+    .Include(cp => cp.Cardapio).ThenInclude(c => c.Escola)
+    .Include(cp => cp.Produto).ThenInclude(p => p.Categoria)
+    .FirstOrDefaultAsync(cp => cp.CardapioId == cardapioId && cp.ProdutoId == produtoId);
     if (cardapioProduto is null)
     {
         return Results.NotFound("Ligação não encontrada.");
