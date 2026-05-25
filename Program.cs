@@ -40,6 +40,9 @@ app.MapGet("/healthy", () =>
 
 app.MapEscolaEndpoints();
 app.MapCardapioEndpoints();
+app.MapCategoriaEndpoints();
+app.MapProdutoEndpoints();
+app.MapCardapioProdutoEndpoints();
 
 app.Run(); 
 

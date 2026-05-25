@@ -88,7 +88,6 @@ app.MapPatch("/cardapio/{id}", async (int id, AppDbContext db, CardapioDto dto) 
     {
         cardapio.Nome = dto.Nome;
     }
-    
     if (dto.EscolaId > 0)
     {
         var escolaExiste = await db.Escolas.FindAsync(dto.EscolaId);
