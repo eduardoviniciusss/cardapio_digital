@@ -11,8 +11,8 @@ using cardapio_digital;
 namespace cardapio_digital.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260523215901_CriandoTabelaCardapioProdruto")]
-    partial class CriandoTabelaCardapioProdruto
+    [Migration("20260526185811_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -114,10 +114,10 @@ namespace cardapio_digital.Migrations
                         .HasColumnType("text")
                         .HasColumnName("telefone");
 
-                    b.Property<string>("Turno")
+                    b.Property<string>("Turnos")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("turno");
+                        .HasColumnName("turnos");
 
                     b.HasKey("Id")
                         .HasName("pk_escolas");

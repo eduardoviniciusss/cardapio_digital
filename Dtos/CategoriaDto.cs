@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace cardapio_digital.Entities
+namespace cardapio_digital.Dtos
 {
     public class CategoriaDto
     {

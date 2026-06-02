@@ -11,8 +11,8 @@ using cardapio_digital;
 namespace cardapio_digital.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260523193310_CriandoTabelaProduto")]
-    partial class CriandoTabelaProduto
+    [Migration("20260602132451_AtualizandoEscolaTurnoEnum")]
+    partial class AtualizandoEscolaTurnoEnum
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -49,6 +49,25 @@ namespace cardapio_digital.Migrations
                         .HasDatabaseName("ix_cardapios_escola_id");
 
                     b.ToTable("cardapios", (string)null);
+                });
+
+            modelBuilder.Entity("cardapio_digital.Entities.CardapioProduto", b =>
+                {
+                    b.Property<int>("CardapioId")
+                        .HasColumnType("integer")
+                        .HasColumnName("cardapio_id");
+
+                    b.Property<int>("ProdutoId")
+                        .HasColumnType("integer")
+                        .HasColumnName("produto_id");
+
+                    b.HasKey("CardapioId", "ProdutoId")
+                        .HasName("pk_cardapio_produtos");
+
+                    b.HasIndex("ProdutoId")
+                        .HasDatabaseName("ix_cardapio_produtos_produto_id");
+
+                    b.ToTable("cardapio_produtos", (string)null);
                 });
 
             modelBuilder.Entity("cardapio_digital.Entities.Categoria", b =>
@@ -95,10 +114,10 @@ namespace cardapio_digital.Migrations
                         .HasColumnType("text")
                         .HasColumnName("telefone");
 
-                    b.Property<string>("Turno")
+                    b.Property<string>("Turnos")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("turno");
+                        .HasColumnName("turnos");
 
                     b.HasKey("Id")
                         .HasName("pk_escolas");
@@ -147,6 +166,27 @@ namespace cardapio_digital.Migrations
                         .HasConstraintName("fk_cardapios_escolas_escola_id");
 
                     b.Navigation("Escola");
+                });
+
+            modelBuilder.Entity("cardapio_digital.Entities.CardapioProduto", b =>
+                {
+                    b.HasOne("cardapio_digital.Entities.Cardapio", "Cardapio")
+                        .WithMany()
+                        .HasForeignKey("CardapioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_cardapio_produtos_cardapios_cardapio_id");
+
+                    b.HasOne("cardapio_digital.Entities.Produto", "Produto")
+                        .WithMany()
+                        .HasForeignKey("ProdutoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_cardapio_produtos_produtos_produto_id");
+
+                    b.Navigation("Cardapio");
+
+                    b.Navigation("Produto");
                 });
 
             modelBuilder.Entity("cardapio_digital.Entities.Produto", b =>

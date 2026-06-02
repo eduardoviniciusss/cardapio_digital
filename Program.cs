@@ -4,6 +4,7 @@ using cardapio_digital.Entities;
 using cardapio_digital.Endpoints;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
+using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args); 
@@ -11,8 +12,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    // Permite que a API entenda Enums como texto (ex: "Manha") no JSON
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
           .UseSnakeCaseNamingConvention ());
@@ -42,7 +47,6 @@ app.MapEscolaEndpoints();
 app.MapCardapioEndpoints();
 app.MapCategoriaEndpoints();
 app.MapProdutoEndpoints();
-app.MapCardapioProdutoEndpoints();
+
 
 app.Run(); 
-

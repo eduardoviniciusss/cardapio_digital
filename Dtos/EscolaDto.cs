@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using cardapio_digital.Enums;
 
-namespace cardapio_digital.Entities
+namespace cardapio_digital.Dtos
 {
     public class EscolaDto
     {
@@ -15,6 +16,7 @@ namespace cardapio_digital.Entities
 
         public required string Telefone { get; set; } 
 
-        public required string Turno { get; set; } 
+        public required List<Turno> Turnos { get; set; } = new();
+    
     }
 }

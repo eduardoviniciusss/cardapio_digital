@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using cardapio_digital.Enums;
 using cardapio_digital.Entities;
 
 namespace cardapio_digital
@@ -29,9 +31,15 @@ namespace cardapio_digital
             {
                 cp.CardapioId,
                 cp.ProdutoId
-
             });
 
+            // Configura o EF para salvar a List<Turno> como uma string JSON no banco
+            modelBuilder.Entity<Escola>()
+                .Property(e => e.Turnos)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null!),
+                    v => JsonSerializer.Deserialize<List<Turno>>(v, (JsonSerializerOptions)null!) ?? new List<Turno>()
+                );
         }
     }
 }

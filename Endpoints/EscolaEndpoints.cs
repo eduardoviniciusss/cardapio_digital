@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using cardapio_digital.Entities;
+using cardapio_digital.Dtos;
+using cardapio_digital.Enums;
 
 namespace cardapio_digital.Endpoints
 {
@@ -31,17 +33,21 @@ app.MapGet("/escola/{id}", async (int id, AppDbContext db) =>
 //POST ESCOLA
 app.MapPost("/escola", async (AppDbContext db, EscolaDto dto) =>
 {
-    if (new[] { dto.Nome, dto.Endereco, dto.Telefone, dto.Turno }
-        .Any(campo => campo is null))
+    if (new[] { dto.Nome, dto.Endereco, dto.Telefone }
+        .Any(campo => string.IsNullOrWhiteSpace(campo)))
     {
         return Results.BadRequest("Todos os campos são obrigatórios.");
+    }
+    if (dto.Turnos is null || !dto.Turnos.Any())
+    {
+        return Results.BadRequest("Informe pelo menos um turno.");
     }
     var escola = new Escola
     {
         Nome = dto.Nome!,
         Endereco = dto.Endereco!,
         Telefone = dto.Telefone!,
-        Turno = dto.Turno!
+        Turnos = dto.Turnos
     };
     db.Escolas.Add(escola);
     await db.SaveChangesAsync();
@@ -53,10 +59,10 @@ app.MapPut("/escola/{id}", async (int id, AppDbContext db, EscolaDto dto) =>
 {
     if (await db.Escolas.FindAsync(id) is not Escola escola)
         return Results.NotFound();
-    escola.Nome = dto.Nome ?? escola.Nome;
-    escola.Endereco = dto.Endereco ?? escola.Endereco;
-    escola.Telefone = dto.Telefone ?? escola.Telefone;
-    escola.Turno = dto.Turno ?? escola.Turno;
+    escola.Nome = dto.Nome;
+    escola.Endereco = dto.Endereco;
+    escola.Telefone = dto.Telefone;
+    escola.Turnos = dto.Turnos;
     await db.SaveChangesAsync();
     return Results.Ok(escola);
 });
@@ -73,8 +79,8 @@ app.MapPatch("/escola/{id}", async (int id, AppDbContext db, EscolaDto dto) =>
         escola.Endereco = dto.Endereco;
     if (dto.Telefone is not null)
         escola.Telefone = dto.Telefone;
-    if (dto.Turno is not null)
-        escola.Turno = dto.Turno;
+    if (dto.Turnos is not null)
+        escola.Turnos = dto.Turnos;
     await db.SaveChangesAsync();
     return Results.Ok(escola);
 });

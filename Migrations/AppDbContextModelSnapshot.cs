@@ -111,10 +111,10 @@ namespace cardapio_digital.Migrations
                         .HasColumnType("text")
                         .HasColumnName("telefone");
 
-                    b.Property<string>("Turno")
+                    b.Property<string>("Turnos")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("turno");
+                        .HasColumnName("turnos");
 
                     b.HasKey("Id")
                         .HasName("pk_escolas");

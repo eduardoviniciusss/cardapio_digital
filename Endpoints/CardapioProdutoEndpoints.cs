@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using cardapio_digital.Entities;
+using cardapio_digital.Dtos;
 
 namespace cardapio_digital.Endpoints
 {
@@ -18,7 +19,18 @@ app.MapGet("/cardapio-produto", async (AppDbContext db) =>
     .Include(cp => cp.Cardapio).ThenInclude(c => c.Escola)
     .Include(cp => cp.Produto).ThenInclude(p => p.Categoria)
     .ToListAsync();
-    return Results.Ok(cardapioProdutos);
+  var response = cardapioProdutos.Select(cardapioProduto => new CardapioProdutoRespostaDto
+                {
+                    CardapioId = cardapioProduto.CardapioId,
+                    Cardapio = cardapioProduto.Cardapio.Nome,
+
+                    ProdutoId = cardapioProduto.ProdutoId,
+                    Produto = cardapioProduto.Produto.Nome,
+
+                    Categoria = cardapioProduto.Produto.Categoria.Nome
+                });
+
+                return Results.Ok(response);
 });
 
 // GET ID CARDAPIO_PRODUTO
@@ -32,7 +44,18 @@ app.MapGet("/cardapio-produto/{cardapioId}/{produtoId}",async (int cardapioId, i
     {
         return Results.NotFound("Ligação não encontrada.");
     }
-    return Results.Ok(cardapioProduto);
+    var response = new CardapioProdutoRespostaDto
+    {
+        CardapioId = cardapioProduto.CardapioId,
+        Cardapio = cardapioProduto.Cardapio.Nome,
+
+        ProdutoId = cardapioProduto.ProdutoId,
+        Produto = cardapioProduto.Produto.Nome,
+
+        Categoria = cardapioProduto.Produto.Categoria.Nome
+    };
+
+    return Results.Ok(response);
 });
 
 // POST CARDAPIO_PRODUTO
@@ -43,7 +66,7 @@ app.MapPost("/cardapio-produto",async (AppDbContext db, CardapioProdutoDto dto) 
     {
         return Results.BadRequest("Cardápio não encontrado.");
     }
-    var produtoExiste = await db.Produtos.FindAsync(dto.ProdutoId);
+    var produtoExiste = await db.Produtos.Include(p => p.Categoria).FirstOrDefaultAsync(p => p.Id == dto.ProdutoId);
     if (produtoExiste is null)
     {
         return Results.BadRequest("Produto não encontrado.");
@@ -59,10 +82,24 @@ app.MapPost("/cardapio-produto",async (AppDbContext db, CardapioProdutoDto dto) 
         CardapioId = dto.CardapioId,
         ProdutoId = dto.ProdutoId
     };
-    db.CardapioProdutos.Add(cardapioProduto); await db.SaveChangesAsync();
-    return Results.Created($"/cardapio-produto/{dto.CardapioId}/{dto.ProdutoId}",cardapioProduto);
-});
+    db.CardapioProdutos.Add(cardapioProduto); 
+    await db.SaveChangesAsync();
+     var response = new CardapioProdutoRespostaDto
+    {
+        CardapioId = cardapioProduto.CardapioId,
+        Cardapio = cardapioExiste.Nome,
 
+        ProdutoId = cardapioProduto.ProdutoId,
+        Produto = produtoExiste.Nome,
+
+        Categoria = produtoExiste.Categoria?.Nome ?? "Sem Categoria"
+    };
+
+    return Results.Created(
+        $"/cardapio-produto/{dto.CardapioId}/{dto.ProdutoId}",
+        response
+    );
+});
 
 
 // PUT CARDAPIO_PRODUTO
@@ -79,7 +116,7 @@ app.MapPut("/cardapio-produto/{cardapioId}/{produtoId}", async (int cardapioId,i
     {
         return Results.BadRequest("Cardápio não encontrado.");
     }
-    var produtoExiste = await db.Produtos.FindAsync(dto.ProdutoId);
+    var produtoExiste = await db.Produtos.Include(p => p.Categoria).FirstOrDefaultAsync(p => p.Id == dto.ProdutoId);
     if (produtoExiste is null)
     {
         return Results.BadRequest("Produto não encontrado.");
@@ -92,7 +129,18 @@ app.MapPut("/cardapio-produto/{cardapioId}/{produtoId}", async (int cardapioId,i
     };
     db.CardapioProdutos.Add(novoRegistro);
     await db.SaveChangesAsync();
-    return Results.Ok(novoRegistro);
+    var response = new CardapioProdutoRespostaDto
+    {
+        CardapioId = novoRegistro.CardapioId,
+        Cardapio = cardapioExiste.Nome,
+
+        ProdutoId = novoRegistro.ProdutoId,
+        Produto = produtoExiste.Nome,
+
+        Categoria = produtoExiste.Categoria?.Nome ?? "Sem Categoria"
+    };
+
+    return Results.Ok(response);
 });
 
 
@@ -125,7 +173,23 @@ app.MapPatch("/cardapio-produto/{cardapioId}/{produtoId}", async (int cardapioId
         cardapioProduto.ProdutoId = dto.ProdutoId;
     }
     await db.SaveChangesAsync();
-    return Results.Ok(cardapioProduto);
+
+    var cardapioProdutoAtualizado = await db.CardapioProdutos
+        .Include(cp => cp.Cardapio)
+        .Include(cp => cp.Produto).ThenInclude(p => p.Categoria)
+        .FirstOrDefaultAsync(cp => cp.CardapioId == cardapioProduto.CardapioId && cp.ProdutoId == cardapioProduto.ProdutoId);
+
+    if (cardapioProdutoAtualizado is null) return Results.BadRequest("Erro ao recuperar ligação atualizada.");
+
+    var response = new CardapioProdutoRespostaDto
+    {
+        CardapioId = cardapioProdutoAtualizado.CardapioId,
+        Cardapio = cardapioProdutoAtualizado.Cardapio.Nome,
+        ProdutoId = cardapioProdutoAtualizado.ProdutoId,
+        Produto = cardapioProdutoAtualizado.Produto.Nome,
+        Categoria = cardapioProdutoAtualizado.Produto.Categoria?.Nome ?? "Sem Categoria"
+    };
+    return Results.Ok(response);
 });
 
 

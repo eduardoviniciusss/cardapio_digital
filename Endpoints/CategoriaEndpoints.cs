@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using cardapio_digital.Entities;
+using cardapio_digital.Dtos;
 
 namespace cardapio_digital.Endpoints
 {
