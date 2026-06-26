@@ -21,6 +21,8 @@ namespace cardapio_digital
 
        public DbSet<CardapioProduto> CardapioProdutos => Set<CardapioProduto>();
 
+       public DbSet<Usuario> Usuarios => Set<Usuario>();
+
        public AppDbContext(DbContextOptions<AppDbContext>options):
        base(options){}
 
@@ -40,6 +42,24 @@ namespace cardapio_digital
                     v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null!),
                     v => JsonSerializer.Deserialize<List<Turno>>(v, (JsonSerializerOptions)null!) ?? new List<Turno>()
                 );
+
+            //Configuração de Usuario
+            modelBuilder.Entity<Usuario>()
+            .HasIndex(x => x.Email)
+            .IsUnique();
+
+            modelBuilder.Entity<Usuario>()
+            .Property(x => x.Nome)
+            .HasMaxLength(100);
+
+            modelBuilder.Entity<Usuario>()
+            .Property(x => x.Email)
+            .HasMaxLength(150);
+
+            modelBuilder.Entity<Usuario>()
+            .Property(x => x.SenhaHash)
+            .HasMaxLength(500);
         }
+
     }
 }

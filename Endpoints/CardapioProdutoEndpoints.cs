@@ -101,7 +101,6 @@ app.MapPost("/cardapio-produto",async (AppDbContext db, CardapioProdutoDto dto) 
     );
 });
 
-
 // PUT CARDAPIO_PRODUTO
 app.MapPut("/cardapio-produto/{cardapioId}/{produtoId}", async (int cardapioId,int produtoId,AppDbContext db,CardapioProdutoDto dto) =>
 {
@@ -142,8 +141,6 @@ app.MapPut("/cardapio-produto/{cardapioId}/{produtoId}", async (int cardapioId,i
 
     return Results.Ok(response);
 });
-
-
 
 // PATCH CARDAPIO_PRODUTO
 app.MapPatch("/cardapio-produto/{cardapioId}/{produtoId}", async (int cardapioId, int produtoId, AppDbContext db, CardapioProdutoDto dto) =>
@@ -191,8 +188,6 @@ app.MapPatch("/cardapio-produto/{cardapioId}/{produtoId}", async (int cardapioId
     };
     return Results.Ok(response);
 });
-
-
 
 // DELETE CARDAPIO_PRODUTO
 app.MapDelete("/cardapio-produto/{cardapioId}/{produtoId}",async (int cardapioId, int produtoId, AppDbContext db) =>

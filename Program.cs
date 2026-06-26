@@ -44,9 +44,11 @@ app.MapGet("/healthy", () =>
 });
 
 app.MapEscolaEndpoints();
+app.MapCadastroUsuarioEndpoints();
 app.MapCardapioEndpoints();
 app.MapCategoriaEndpoints();
 app.MapProdutoEndpoints();
-
+app.MapCardapioProdutoEndpoints();
+app.MapLoginUsuarioEndpoints();
 
 app.Run(); 
