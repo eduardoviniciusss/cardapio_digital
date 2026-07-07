@@ -37,8 +37,8 @@ app.MapPost("/usuarios", async (CadastroUsuarioDto dto, AppDbContext context) =>
     SenhaHash = hash,
     Perfil = dto.Perfil,
   };
-  context.Usuarios.Add(usuario);//Criando o objeto 
-  await context.SaveChangesAsync();//Add no banco
+  context.Usuarios.Add(usuario);//Cria objeto
+  await context.SaveChangesAsync();//Salva no banco
   return Results.Ok("Usuário criado com sucesso");//retorna 
 });
         }   

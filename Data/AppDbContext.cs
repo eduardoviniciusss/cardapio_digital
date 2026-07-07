@@ -59,6 +59,19 @@ namespace cardapio_digital
             modelBuilder.Entity<Usuario>()
             .Property(x => x.SenhaHash)
             .HasMaxLength(500);
+            
+            //Relacionamente 1:1 Usuario e Objeto
+            modelBuilder.Entity<Usuario>()
+            .HasOne(u => u.Escola)
+            .WithOne(e => e.Usuario)
+            .HasForeignKey<Escola>(e => e.UsuarioId)
+            .IsRequired();
+
+             modelBuilder.Entity<Usuario>()
+            .Property(u => u.Perfil)
+            .HasConversion<string>();
+
+            
         }
 
     }

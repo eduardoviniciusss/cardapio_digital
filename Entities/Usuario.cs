@@ -13,6 +13,7 @@ namespace cardapio_digital.Entities
         public required string Email { get; set; }
         public required string SenhaHash { get; set; }
         public PerfilUsuario Perfil { get; set; }
+        public Escola Escola { get; set; }=null!;
         
     }
 }

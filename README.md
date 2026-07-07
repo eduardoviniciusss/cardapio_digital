@@ -167,6 +167,9 @@ CATEGORIA
 
 ### 📌 Regras da modelagem
 
+- Um usuário possui um único perfil de acesso
+- Um usuário com perfil Escola está vinculado a uma única escola
+- Cada escola possui um único usuário responsável
 - Uma escola pode possuir vários cardápios
 - Um cardápio pode possuir vários produtos
 - Um produto pode estar em vários cardápios

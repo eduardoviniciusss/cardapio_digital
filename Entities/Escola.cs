@@ -16,6 +16,10 @@ namespace cardapio_digital.Entities
         public required string Telefone { get; set; }
 
         public required List<Turno> Turnos { get; set; } = new();
+        
+        public int UsuarioId { get; set; }
+
+        public Usuario Usuario { get; set; }=null!;
 
     }
 }
