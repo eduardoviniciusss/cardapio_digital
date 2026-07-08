@@ -67,6 +67,7 @@ namespace cardapio_digital
             .HasForeignKey<Escola>(e => e.UsuarioId)
             .IsRequired();
 
+            //Trocando int para string em perfil
              modelBuilder.Entity<Usuario>()
             .Property(u => u.Perfil)
             .HasConversion<string>();
