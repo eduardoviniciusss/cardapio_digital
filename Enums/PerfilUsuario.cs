@@ -10,7 +10,8 @@ namespace cardapio_digital.Enums
     public enum PerfilUsuario
     {
         Administrador=1,
-        Cantina=2
+        Cantina=2,
+        Pais=3
 
     }
 }
