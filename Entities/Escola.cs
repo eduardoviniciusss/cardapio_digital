@@ -21,5 +21,7 @@ namespace cardapio_digital.Entities
 
         public Usuario Usuario { get; set; }=null!;
 
+        public ICollection<Filho> Filhos { get; set; } = new List<Filho>();
+
     }
 }

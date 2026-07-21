@@ -23,6 +23,10 @@ namespace cardapio_digital
 
        public DbSet<Usuario> Usuarios => Set<Usuario>();
 
+       public DbSet<Pais> Pais => Set<Pais>();
+
+       public DbSet<Filho> Filho => Set<Filho>();
+
        public AppDbContext(DbContextOptions<AppDbContext>options):
        base(options){}
 
@@ -60,17 +64,43 @@ namespace cardapio_digital
             .Property(x => x.SenhaHash)
             .HasMaxLength(500);
             
-            //Relacionamente 1:1 Usuario e Objeto
+            //Relacionamente 1:1 Usuario e Escola
             modelBuilder.Entity<Usuario>()
             .HasOne(u => u.Escola)
             .WithOne(e => e.Usuario)
             .HasForeignKey<Escola>(e => e.UsuarioId)
             .IsRequired();
 
+            //Relacionamento 1:1 Usuario e Pais
+            modelBuilder.Entity<Pais>()
+            .HasOne(p => p.Usuario)
+            .WithOne(u => u.Pais)
+            .HasForeignKey<Pais>(p => p.UsuarioId)
+            .IsRequired();
+
+            //Relacionamento 1:N Pais e filho
+            modelBuilder.Entity<Filho>()
+            .HasOne(f => f.Pais)
+            .WithMany(p => p.Filhos)
+            .HasForeignKey(f => f.PaisId)
+            .IsRequired();
+
+            //Relacionamento 1:N Escola e filho
+            modelBuilder.Entity<Filho>()
+            .HasOne(f => f.Escola)
+            .WithMany(e => e.Filhos)
+            .HasForeignKey(f => f.EscolaId)
+            .IsRequired();
+
+
+           
+
             //Trocando int para string em perfil
              modelBuilder.Entity<Usuario>()
             .Property(u => u.Perfil)
             .HasConversion<string>();
+
+            
 
             
         }
