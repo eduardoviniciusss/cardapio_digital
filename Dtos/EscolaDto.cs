@@ -9,7 +9,6 @@ namespace cardapio_digital.Dtos
 {
     public class EscolaDto
     {
-        
         public required string Nome { get; set; }
 
         public required string Endereco { get; set; } 
@@ -17,6 +16,8 @@ namespace cardapio_digital.Dtos
         public required string Telefone { get; set; } 
 
         public required List<Turno> Turnos { get; set; } = new();
+
+        public int UsuarioId { get; set; }
     
     }
 }

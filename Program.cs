@@ -4,6 +4,7 @@ using cardapio_digital.Entities;
 using cardapio_digital.Endpoints;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 
@@ -16,6 +17,8 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 {
     // Permite que a API entenda Enums como texto (ex: "Manha") no JSON
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    // Aceita propriedades vindas no JSON com nomes em camelCase ou PascalCase
+    options.SerializerOptions.PropertyNameCaseInsensitive = true;
 });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -50,5 +53,7 @@ app.MapCategoriaEndpoints();
 app.MapProdutoEndpoints();
 app.MapCardapioProdutoEndpoints();
 app.MapLoginUsuarioEndpoints();
+app.MapCadastroPaisEndpoints();
+app.MapCadastroFilhoEndpoints();
 
 app.Run(); 

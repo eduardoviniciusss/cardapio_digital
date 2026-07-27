@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using cardapio_digital.Entities;
 using cardapio_digital.Dtos;
+using cardapio_digital.Enums;
 
 namespace cardapio_digital.Endpoints
 {
-public static class CadastroUsuarioEnpoints
+public static class CadastroUsuarioEndpoints
 {
 public static void MapCadastroUsuarioEndpoints(this WebApplication app)
 {

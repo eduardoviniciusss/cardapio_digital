@@ -2,19 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using cardapio_digital.Entities;
 
-namespace cardapio_digital.Entities
+namespace cardapio_digital.Dtos
 {
-    public class Filho
+    public class CadastroFilhoRespostaDto
     {
         public int Id { get; set; }
         public required string Nome { get; set; }
         public DateTime DataNascimento { get; set; }
-        public string Telefone { get; set; } = string.Empty;
+        public required string Telefone { get; set; }
         public int PaiId { get; set; }
-        public Pais Pais { get; set; } = null!;
+        public CadastroPaisRespondeDto Pais { get; set; } = null!;
         public int EscolaId { get; set; }
-        public Escola Escola { get; set; } = null!;
+        public EscolaRespostaDto Escola { get; set; } = null!;
+
 
     }
 }

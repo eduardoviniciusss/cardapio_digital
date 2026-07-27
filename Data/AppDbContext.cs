@@ -25,7 +25,7 @@ namespace cardapio_digital
 
        public DbSet<Pais> Pais => Set<Pais>();
 
-       public DbSet<Filho> Filho => Set<Filho>();
+       public DbSet<Filho> Filhos => Set<Filho>();
 
        public AppDbContext(DbContextOptions<AppDbContext>options):
        base(options){}
@@ -71,7 +71,7 @@ namespace cardapio_digital
             .HasForeignKey<Escola>(e => e.UsuarioId)
             .IsRequired();
 
-            //Relacionamento 1:1 Usuario e Pais
+            //Relacionamento 1:1 Usuario e Pais"
             modelBuilder.Entity<Pais>()
             .HasOne(p => p.Usuario)
             .WithOne(u => u.Pais)
@@ -82,7 +82,7 @@ namespace cardapio_digital
             modelBuilder.Entity<Filho>()
             .HasOne(f => f.Pais)
             .WithMany(p => p.Filhos)
-            .HasForeignKey(f => f.PaisId)
+            .HasForeignKey(f => f.PaiId)
             .IsRequired();
 
             //Relacionamento 1:N Escola e filho
@@ -92,15 +92,15 @@ namespace cardapio_digital
             .HasForeignKey(f => f.EscolaId)
             .IsRequired();
 
-
-           
-
             //Trocando int para string em perfil
              modelBuilder.Entity<Usuario>()
             .Property(u => u.Perfil)
             .HasConversion<string>();
 
-            
+            //Prmintindo data de nascimento sem a hora
+             modelBuilder.Entity<Filho>()
+             .Property(f => f.DataNascimento)
+             .HasColumnType("date");
 
             
         }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using cardapio_digital;
@@ -11,9 +12,11 @@ using cardapio_digital;
 namespace cardapio_digital.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260723145527_AjustarDataNascimentoFilho")]
+    partial class AjustarDataNascimentoFilho
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -153,9 +156,9 @@ namespace cardapio_digital.Migrations
                         .HasColumnType("text")
                         .HasColumnName("nome");
 
-                    b.Property<int>("PaiId")
+                    b.Property<int>("PaisId")
                         .HasColumnType("integer")
-                        .HasColumnName("pai_id");
+                        .HasColumnName("pais_id");
 
                     b.Property<string>("Telefone")
                         .IsRequired()
@@ -168,8 +171,8 @@ namespace cardapio_digital.Migrations
                     b.HasIndex("EscolaId")
                         .HasDatabaseName("ix_filhos_escola_id");
 
-                    b.HasIndex("PaiId")
-                        .HasDatabaseName("ix_filhos_pai_id");
+                    b.HasIndex("PaisId")
+                        .HasDatabaseName("ix_filhos_pais_id");
 
                     b.ToTable("filhos", (string)null);
                 });
@@ -187,11 +190,6 @@ namespace cardapio_digital.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("cpf");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("nome");
 
                     b.Property<string>("Telefone")
                         .IsRequired()
@@ -341,10 +339,10 @@ namespace cardapio_digital.Migrations
 
                     b.HasOne("cardapio_digital.Entities.Pais", "Pais")
                         .WithMany("Filhos")
-                        .HasForeignKey("PaiId")
+                        .HasForeignKey("PaisId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_filhos_pais_pai_id");
+                        .HasConstraintName("fk_filhos_pais_pais_id");
 
                     b.Navigation("Escola");
 

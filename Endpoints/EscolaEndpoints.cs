@@ -47,11 +47,20 @@ app.MapPost("/escola", async (AppDbContext db, EscolaDto dto) =>
         Nome = dto.Nome!,
         Endereco = dto.Endereco!,
         Telefone = dto.Telefone!,
-        Turnos = dto.Turnos
+        Turnos = dto.Turnos,
+        UsuarioId = dto.UsuarioId
     };
     db.Escolas.Add(escola);
     await db.SaveChangesAsync();
-    return Results.Created($"/escola/{escola.Id}", escola);
+    var resposta = new EscolaRespostaDto
+{
+    Id = escola.Id,
+    Nome = escola.Nome,
+    Endereco = escola.Endereco,
+    Telefone = escola.Telefone,
+    Turnos = escola.Turnos
+};
+    return Results.Created($"/escola/{escola.Id}", resposta);
 });
 
 //PUT ESCOLA
