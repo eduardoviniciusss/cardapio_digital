@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using cardapio_digital.Entities;
 using cardapio_digital.Dtos;
+using System.Security.Claims;
 
 namespace cardapio_digital.Endpoints
 {
@@ -13,9 +14,17 @@ public static class ProdutoEndpoints
 public static void MapProdutoEndpoints(this WebApplication app)
 {
 //GET PRODUTO
-app.MapGet("/produto",async (AppDbContext db) =>
+app.MapGet("/produto",async (AppDbContext db, HttpContext http) =>
 {
-    var produtos = await db.Produtos.Include(p => p.Categoria).ToListAsync();
+    var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+    var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
+
+if (escola == null)
+{
+    return Results.NotFound("Escola não encontrada.");
+}
+    var produtos = await db.Produtos .Include(p => p.Categoria).Where(p => p.EscolaId == escola.Id).ToListAsync();
     var response = produtos.Select(p => new ProdutoRespostaDto
     {
         Id = p.Id,
@@ -24,18 +33,27 @@ app.MapGet("/produto",async (AppDbContext db) =>
         Categoria = p.Categoria
     }).ToList();
     return Results.Ok(response);
-});
+})
+.RequireAuthorization("Cantina");
 
 //GET ID
-app.MapGet("/produto/{id}", async(int id, AppDbContext db) =>
+app.MapGet("/produto/{id}", async(int id, AppDbContext db, HttpContext http) =>
 {
-    var produto = await db.Produtos
-        .Include(p => p.Categoria)
-        .FirstOrDefaultAsync(p => p.Id == id);
-    if (produto is null)
+    var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+    var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
+
+    if (escola == null)
+    {
+        return Results.NotFound("Escola não encontrada.");
+    }
+
+     var produto = await db.Produtos.Include(p => p.Categoria).FirstOrDefaultAsync(p => p.Id == id && p.EscolaId == escola.Id);
+    if (produto == null)
     {
         return Results.NotFound("Produto não encontrado.");
     }
+    
     var response = new ProdutoRespostaDto
     {
         Id = produto.Id,
@@ -44,11 +62,15 @@ app.MapGet("/produto/{id}", async(int id, AppDbContext db) =>
         Categoria = produto.Categoria
     };
     return Results.Ok(response);
- });
+ })
+ .RequireAuthorization("Cantina");
 
 //POST PRODUTO
-app.MapPost("/produto", async (AppDbContext db, ProdutoDto dto) =>
+app.MapPost("/produto", async (AppDbContext db, ProdutoDto dto, HttpContext http) =>
  {
+    var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+    var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
+
      if (string.IsNullOrWhiteSpace(dto.Nome))
     {
         return Results.BadRequest("Nome obrigatório.");
@@ -59,11 +81,17 @@ app.MapPost("/produto", async (AppDbContext db, ProdutoDto dto) =>
     {
         return Results.BadRequest("Categoria não encontrada.");
     }
+    if (escola == null)
+    {
+    return Results.NotFound("Escola não encontrada.");
+    }
     var produto = new Produto
     {
         Nome = dto.Nome,
         Preco = dto.Preco,
-        CategoriaId = dto.CategoriaId
+        CategoriaId = dto.CategoriaId,
+        EscolaId = escola.Id
+    
     };
     db.Produtos.Add(produto);
     await db.SaveChangesAsync();
@@ -82,12 +110,23 @@ app.MapPost("/produto", async (AppDbContext db, ProdutoDto dto) =>
         Categoria = produtoComCategoria.Categoria
     };
     return Results.Created($"/produto/{produto.Id}", response);
- });
+ })
+ .RequireAuthorization("Cantina");
 
 //PUT PRODUTO
-app.MapPut("/produto/{id}", async (int id, AppDbContext db, ProdutoDto dto) =>
+app.MapPut("/produto/{id}", async (int id, AppDbContext db, ProdutoDto dto, HttpContext http) =>
  {
-    var produto = await db.Produtos.FindAsync(id);
+   var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+   var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
+
+if (escola == null)
+{
+    return Results.NotFound("Escola não encontrada.");
+}
+
+var produto = await db.Produtos.FirstOrDefaultAsync(p =>p.Id == id && p.EscolaId == escola.Id);
+
     if (produto is null)
     {
         return Results.NotFound("Produto não encontrado.");
@@ -108,6 +147,7 @@ app.MapPut("/produto/{id}", async (int id, AppDbContext db, ProdutoDto dto) =>
     produto.Nome = dto.Nome;
     produto.Preco = dto.Preco;
     produto.CategoriaId = dto.CategoriaId;
+    
 
     await db.SaveChangesAsync();
 
@@ -126,14 +166,24 @@ app.MapPut("/produto/{id}", async (int id, AppDbContext db, ProdutoDto dto) =>
         Categoria = produtoComCategoria.Categoria
     };
     return Results.Ok(response);
-});
+})
+.RequireAuthorization("Cantina");
 
 
 
 // PATCH PRODUTO
-app.MapPatch("/produto/{id}", async (int id, AppDbContext db, ProdutoDto dto) =>
+app.MapPatch("/produto/{id}", async (int id, AppDbContext db, ProdutoDto dto, HttpContext http) =>
 {
-    var produto = await db.Produtos.FindAsync(id);
+    var usuarioId = int.Parse( http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
+
+if (escola == null)
+{
+    return Results.NotFound("Escola não encontrada.");
+}
+
+var produto = await db.Produtos.FirstOrDefaultAsync(p =>p.Id == id && p.EscolaId == escola.Id);
     if (produto is null)
     {
       return Results.NotFound("Produto não encontrado.");
@@ -171,12 +221,25 @@ app.MapPatch("/produto/{id}", async (int id, AppDbContext db, ProdutoDto dto) =>
         Categoria = produtoComCategoria.Categoria
     };
     return Results.Ok(response);
-});
+})
+.RequireAuthorization("Cantina");
 
 // DELETE PRODUTO
-app.MapDelete("/produto/{id}", async (int id, AppDbContext db) =>
+app.MapDelete("/produto/{id}", async (int id, AppDbContext db, HttpContext http) =>
 {
-    var produto = await db.Produtos.FindAsync(id);
+    var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
+
+if (escola == null)
+{
+    return Results.NotFound("Escola não encontrada.");
+}
+
+var produto = await db.Produtos
+    .FirstOrDefaultAsync(p =>
+        p.Id == id &&
+        p.EscolaId == escola.Id);
     if (produto is null)
     {
         return Results.NotFound("Produto não encontrado.");
@@ -184,7 +247,8 @@ app.MapDelete("/produto/{id}", async (int id, AppDbContext db) =>
     db.Produtos.Remove(produto);
     await db.SaveChangesAsync();
     return Results.NoContent();
-});
+})
+.RequireAuthorization("Cantina");
 
 
         }

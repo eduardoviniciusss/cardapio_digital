@@ -8,7 +8,5 @@ namespace cardapio_digital.Dtos
     public class CardapioDto
     {
         public required string Nome { get; set; }
-
-        public int EscolaId { get; set; }
     }
 }

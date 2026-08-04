@@ -16,7 +16,5 @@ namespace cardapio_digital.Dtos
         public CadastroPaisRespondeDto Pais { get; set; } = null!;
         public int EscolaId { get; set; }
         public EscolaRespostaDto Escola { get; set; } = null!;
-
-
     }
 }

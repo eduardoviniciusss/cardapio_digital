@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using cardapio_digital.Entities;
 using cardapio_digital.Dtos;
+using System.Security.Claims;
 
 namespace cardapio_digital.Endpoints
 {
@@ -13,19 +14,34 @@ public static class CardapioEndpoints
 public static void MapCardapioEndpoints(this WebApplication app)
 {
 //GET CARDAPIO
-app.MapGet("/cardapio", async (AppDbContext db) =>
+app.MapGet("/cardapio", async (AppDbContext db, HttpContext http) =>
 {
-  var cardapio = await db.Cardapios.Include(c => c.Escola).ToListAsync();
+    var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+    var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
+
+if (escola == null)
+{
+    return Results.NotFound("Escola não encontrada.");
+}
+  var cardapio = await db.Cardapios.Include(c => c.Escola).Where(c => c.EscolaId == escola.Id).ToListAsync();
   var response = cardapio.Select(c => new CardapioRespostaDto { Id = c.Id, Nome = c.Nome, Escola = c.Escola }).ToList();
   return Results.Ok(response);
 });
 
 //GET ID CARDAPIO
-app.MapGet("/cardapio/{id}", async(int id, AppDbContext db) =>
+app.MapGet("/cardapio/{id}", async(int id, AppDbContext db,  HttpContext http) =>
 {
-  var cardapio = await db.Cardapios
-  .Include(c => c.Escola)
-  .FirstOrDefaultAsync(c => c.Id == id);
+    var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+    var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
+
+    if (escola == null)
+    {
+        return Results.NotFound("Escola não encontrada.");
+    }
+
+  var cardapio = await db.Cardapios.Include(c => c.Escola).FirstOrDefaultAsync(c => c.Id == id && c.EscolaId == escola.Id);
   if (cardapio is null)
     {
         return Results.NotFound("Cardápio não encontrado.");
@@ -35,22 +51,26 @@ app.MapGet("/cardapio/{id}", async(int id, AppDbContext db) =>
 });
 
 //POST CARDAPIO
-app.MapPost("/cardapio", async (AppDbContext db, CardapioDto dto) =>
-{
+app.MapPost("/cardapio", async (AppDbContext db, CardapioDto dto, HttpContext http) =>
+{ 
+    var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+    var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
+
+    if (escola == null)
+    {
+        return Results.NotFound("Escola não encontrada.");
+    }
+    
     if (string.IsNullOrWhiteSpace(dto.Nome))
     {
         return Results.BadRequest("Nome é obrigatório.");
     }
-   // verifica se escola existe
-    var escolaExiste = await db.Escolas.FindAsync(dto.EscolaId);
-    if (escolaExiste is null)
-    {
-        return Results.BadRequest("Escola não encontrada.");
-    }
+
     var cardapio = new Cardapio
     {
         Nome = dto.Nome,
-        EscolaId = dto.EscolaId
+        EscolaId = escola.Id
     };
     db.Cardapios.Add(cardapio);
     await db.SaveChangesAsync();
@@ -68,12 +88,22 @@ app.MapPost("/cardapio", async (AppDbContext db, CardapioDto dto) =>
         Escola = cardapioComEscola.Escola
     };
     return Results.Created($"/cardapio/{cardapio.Id}", response);
-});
+})
+.RequireAuthorization("Cantina");
 
 //PUT CARDAPIO
-app.MapPut("/cardapio/{id}", async (int id, AppDbContext db, CardapioDto dto) =>
+app.MapPut("/cardapio/{id}", async (int id, AppDbContext db, CardapioDto dto, HttpContext http) =>
 {
-    var cardapio = await db.Cardapios.FindAsync(id);
+    var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+    var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
+
+    if (escola == null)
+    {
+    return Results.NotFound("Escola não encontrada.");
+    }   
+
+    var cardapio = await db.Produtos.FirstOrDefaultAsync(p =>p.Id == id && p.EscolaId == escola.Id);
     if (cardapio is null)
     {
         return Results.NotFound();
@@ -82,13 +112,8 @@ app.MapPut("/cardapio/{id}", async (int id, AppDbContext db, CardapioDto dto) =>
     {
         return Results.BadRequest("Nome é obrigatório.");
     }
-    var escolaExiste = await db.Escolas.FindAsync(dto.EscolaId);
-    if (escolaExiste is null)
-    {
-        return Results.BadRequest("Escola não encontrada.");
-    }
     cardapio.Nome = dto.Nome;
-    cardapio.EscolaId = dto.EscolaId;
+
     await db.SaveChangesAsync();
     var cardapioAtualizado = await db.Cardapios
         .Include(c => c.Escola)
@@ -99,12 +124,20 @@ app.MapPut("/cardapio/{id}", async (int id, AppDbContext db, CardapioDto dto) =>
     }
     var response = new CardapioRespostaDto { Id = cardapioAtualizado.Id, Nome = cardapioAtualizado.Nome, Escola = cardapioAtualizado.Escola };
     return Results.Ok(response);
-});
+})
+.RequireAuthorization("Cantina");
 
 //PATCH CARDAPIO
-app.MapPatch("/cardapio/{id}", async (int id, AppDbContext db, CardapioDto dto) =>
+app.MapPatch("/cardapio/{id}", async (int id, AppDbContext db, CardapioDto dto, HttpContext http) =>
     {
-    var cardapio = await db.Cardapios.FindAsync(id);
+    var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+    var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
+    if (escola == null)
+{
+    return Results.NotFound("Escola não encontrada.");
+}
+var cardapio = await db.Cardapios.FirstOrDefaultAsync(c => c.Id == id && c.EscolaId == escola.Id);
     if (cardapio is null)
     {
         return Results.NotFound();
@@ -113,16 +146,6 @@ app.MapPatch("/cardapio/{id}", async (int id, AppDbContext db, CardapioDto dto) 
     {
         cardapio.Nome = dto.Nome;
     }
-    if (dto.EscolaId > 0)
-    {
-        var escolaExiste = await db.Escolas.FindAsync(dto.EscolaId);
-        if (escolaExiste is null)
-        {
-            return Results.BadRequest("Escola não encontrada.");
-        }
-
-        cardapio.EscolaId = dto.EscolaId;
-    }
     await db.SaveChangesAsync();
     var cardapioAtualizado = await db.Cardapios
         .Include(c => c.Escola)
@@ -133,12 +156,22 @@ app.MapPatch("/cardapio/{id}", async (int id, AppDbContext db, CardapioDto dto) 
     }
     var response = new CardapioRespostaDto { Id = cardapioAtualizado.Id, Nome = cardapioAtualizado.Nome, Escola = cardapioAtualizado.Escola };
     return Results.Ok(response);
-});
+})
+.RequireAuthorization("Cantina");
 
 //DELETE CARDAPIO
-app.MapDelete("/cardapio/{id}", async (int id, AppDbContext db) =>
+app.MapDelete("/cardapio/{id}", async (int id, AppDbContext db, HttpContext http) =>
 {
-    var cardapio = await db.Cardapios.FindAsync(id);
+   var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
+
+if (escola == null)
+{
+    return Results.NotFound("Escola não encontrada.");
+}
+
+var cardapio = await db.Cardapios.FirstOrDefaultAsync(c =>c.Id == id && c.EscolaId == escola.Id);
 
     if (cardapio is null)
     {
@@ -147,7 +180,8 @@ app.MapDelete("/cardapio/{id}", async (int id, AppDbContext db) =>
     db.Cardapios.Remove(cardapio);
     await db.SaveChangesAsync();
     return Results.NoContent();
-}); 
+})
+.RequireAuthorization("Cantina");
         }
     }
 }

@@ -23,5 +23,7 @@ namespace cardapio_digital.Entities
 
         public ICollection<Filho> Filhos { get; set; } = new List<Filho>();
 
+        public ICollection<Produto> Produtos { get; set; } = new List<Produto>();
+
     }
 }

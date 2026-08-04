@@ -8,7 +8,8 @@ namespace cardapio_digital.Entities
     public class Categoria
     {
         public int Id { get; set; }
-
         public required string Nome { get; set; }
+        public int EscolaId { get; set; }
+        public Escola Escola { get; set; } = null!;
     }
 }

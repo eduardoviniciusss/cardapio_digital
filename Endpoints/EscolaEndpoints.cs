@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using cardapio_digital.Entities;
 using cardapio_digital.Dtos;
 using cardapio_digital.Enums;
+using System.Security.Claims;
 
 namespace cardapio_digital.Endpoints
 {
@@ -14,25 +15,41 @@ public static class EscolaEndpoints
 public static void MapEscolaEndpoints(this WebApplication app)
 {
  //GET ESCOLA
-app.MapGet("/escola", async (AppDbContext db) =>
+app.MapGet("/escola", async (AppDbContext db,HttpContext http) =>
 {
-   return await db.Escolas.ToListAsync(); 
-});
+    var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+    var escola = await db.Escolas.FirstOrDefaultAsync(e =>e.UsuarioId == usuarioId);
+    if(escola == null)
+{
+    return Results.NotFound();
+}
+return Results.Ok(escola);
+    
+}).RequireAuthorization("Cantina");
 
 //GET ID ESCOLA
-app.MapGet("/escola/{id}", async (int id, AppDbContext db) =>
+app.MapGet("/escola/{id}", async (int id, AppDbContext db, HttpContext http) =>
 {
-    var escola = await db.Escolas.FindAsync(id);
-    if (escola is null)
-    {
-        return Results.NotFound("Escola não encontrada.");
-    }
-   return Results.Ok(escola);
-});
+  var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value );
+
+ var escola = await db.Escolas.FirstOrDefaultAsync(e =>e.Id == id &&e.UsuarioId == usuarioId);
+
+ if (escola is null)
+{
+    return Results.NotFound("Escola não encontrada.");
+}
+return Results.Ok(escola);
+})
+.RequireAuthorization("Cantina");
 
 //POST ESCOLA
-app.MapPost("/escola", async (AppDbContext db, EscolaDto dto) =>
+app.MapPost("/escola", async (AppDbContext db, EscolaDto dto, HttpContext http) =>
 {
+    var usuarioId = int.Parse(
+    http.User
+    .FindFirst(ClaimTypes.NameIdentifier)!
+    .Value
+);
     if (new[] { dto.Nome, dto.Endereco, dto.Telefone }
         .Any(campo => string.IsNullOrWhiteSpace(campo)))
     {
@@ -48,7 +65,7 @@ app.MapPost("/escola", async (AppDbContext db, EscolaDto dto) =>
         Endereco = dto.Endereco!,
         Telefone = dto.Telefone!,
         Turnos = dto.Turnos,
-        UsuarioId = dto.UsuarioId
+        UsuarioId = usuarioId
     };
     db.Escolas.Add(escola);
     await db.SaveChangesAsync();
@@ -61,25 +78,37 @@ app.MapPost("/escola", async (AppDbContext db, EscolaDto dto) =>
     Turnos = escola.Turnos
 };
     return Results.Created($"/escola/{escola.Id}", resposta);
-});
+})
+.RequireAuthorization("Administrador");
+
 
 //PUT ESCOLA
-app.MapPut("/escola/{id}", async (int id, AppDbContext db, EscolaDto dto) =>
+app.MapPut("/escola/{id}",  async (int id, AppDbContext db, EscolaDto dto, HttpContext http) =>
 {
-    if (await db.Escolas.FindAsync(id) is not Escola escola)
-        return Results.NotFound();
+    var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value );
+    var escola = await db.Escolas.FirstOrDefaultAsync(e =>e.Id == id && e.UsuarioId == usuarioId );
+    if(escola is null)
+    {
+        return Results.NotFound("Escola não encontrada.");
+    }
     escola.Nome = dto.Nome;
     escola.Endereco = dto.Endereco;
     escola.Telefone = dto.Telefone;
     escola.Turnos = dto.Turnos;
     await db.SaveChangesAsync();
     return Results.Ok(escola);
-});
+})
+.RequireAuthorization("Cantina");
 
 //PATCH ESCOLA
-app.MapPatch("/escola/{id}", async (int id, AppDbContext db, EscolaDto dto) =>
+app.MapPatch("/escola/{id}", async (int id, AppDbContext db, EscolaDto dto, HttpContext http) =>
 {
-    var escola = await db.Escolas.FindAsync(id);
+    var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+    var escola = await db.Escolas.FirstOrDefaultAsync(e =>e.Id == id && e.UsuarioId == usuarioId);
+    if(escola is null)
+    {
+        return Results.NotFound("Escola não encontrada.");
+    }
     if (escola is null)
         return Results.NotFound();
     if (dto.Nome is not null)
@@ -92,7 +121,8 @@ app.MapPatch("/escola/{id}", async (int id, AppDbContext db, EscolaDto dto) =>
         escola.Turnos = dto.Turnos;
     await db.SaveChangesAsync();
     return Results.Ok(escola);
-});
+})
+.RequireAuthorization("Cantina");
 
 //DELETE 
 app.MapDelete("/escola/{id}", async (int id,AppDbContext db ) =>
@@ -102,7 +132,8 @@ app.MapDelete("/escola/{id}", async (int id,AppDbContext db ) =>
     db.Escolas.Remove(escola);
     await db.SaveChangesAsync();
     return Results.NoContent();
-});
+})
+.RequireAuthorization("Administrador");
 
         }
     }

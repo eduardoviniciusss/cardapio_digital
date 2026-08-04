@@ -13,6 +13,5 @@ namespace cardapio_digital.Dtos
 
         public string Telefone { get; set; } = string.Empty;
 
-        public int UsuarioId { get; set; }
     }
 }

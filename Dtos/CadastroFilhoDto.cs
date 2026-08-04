@@ -10,7 +10,6 @@ namespace cardapio_digital.Dtos
         public required string Nome { get; set; }
         public DateTime DataNascimento { get; set; }
         public string Telefone { get; set; } = string.Empty;
-        public int PaiId { get; set; }
         public int EscolaId { get; set; }
 
     }

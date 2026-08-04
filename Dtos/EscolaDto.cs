@@ -17,7 +17,7 @@ namespace cardapio_digital.Dtos
 
         public required List<Turno> Turnos { get; set; } = new();
 
-        public int UsuarioId { get; set; }
+        
     
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using cardapio_digital;
@@ -11,9 +12,11 @@ using cardapio_digital;
 namespace cardapio_digital.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260803151357_RelacionamentoProdutoEscola")]
+    partial class RelacionamentoProdutoEscola
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,10 +80,6 @@ namespace cardapio_digital.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("EscolaId")
-                        .HasColumnType("integer")
-                        .HasColumnName("escola_id");
-
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("text")
@@ -88,9 +87,6 @@ namespace cardapio_digital.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_categorias");
-
-                    b.HasIndex("EscolaId")
-                        .HasDatabaseName("ix_categorias_escola_id");
 
                     b.ToTable("categorias", (string)null);
                 });
@@ -232,10 +228,6 @@ namespace cardapio_digital.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("categoria_id");
 
-                    b.Property<int>("EscolaId")
-                        .HasColumnType("integer")
-                        .HasColumnName("escola_id");
-
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasColumnType("text")
@@ -250,9 +242,6 @@ namespace cardapio_digital.Migrations
 
                     b.HasIndex("CategoriaId")
                         .HasDatabaseName("ix_produtos_categoria_id");
-
-                    b.HasIndex("EscolaId")
-                        .HasDatabaseName("ix_produtos_escola_id");
 
                     b.ToTable("produtos", (string)null);
                 });
@@ -332,18 +321,6 @@ namespace cardapio_digital.Migrations
                     b.Navigation("Produto");
                 });
 
-            modelBuilder.Entity("cardapio_digital.Entities.Categoria", b =>
-                {
-                    b.HasOne("cardapio_digital.Entities.Escola", "Escola")
-                        .WithMany()
-                        .HasForeignKey("EscolaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_categorias_escolas_escola_id");
-
-                    b.Navigation("Escola");
-                });
-
             modelBuilder.Entity("cardapio_digital.Entities.Escola", b =>
                 {
                     b.HasOne("cardapio_digital.Entities.Usuario", "Usuario")
@@ -398,23 +375,12 @@ namespace cardapio_digital.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_produtos_categorias_categoria_id");
 
-                    b.HasOne("cardapio_digital.Entities.Escola", "Escola")
-                        .WithMany("Produtos")
-                        .HasForeignKey("EscolaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_produtos_escolas_escola_id");
-
                     b.Navigation("Categoria");
-
-                    b.Navigation("Escola");
                 });
 
             modelBuilder.Entity("cardapio_digital.Entities.Escola", b =>
                 {
                     b.Navigation("Filhos");
-
-                    b.Navigation("Produtos");
                 });
 
             modelBuilder.Entity("cardapio_digital.Entities.Pais", b =>

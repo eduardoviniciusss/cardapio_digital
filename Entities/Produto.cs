@@ -16,5 +16,8 @@ namespace cardapio_digital.Entities
         public int CategoriaId { get; set; }
 
         public Categoria Categoria { get; set; }= null!;
+
+        public int EscolaId { get; set; }
+        public Escola Escola { get; set; }= null!;
     }
 }

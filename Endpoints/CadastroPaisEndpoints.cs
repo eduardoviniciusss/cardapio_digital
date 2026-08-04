@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using cardapio_digital.Entities;
 using cardapio_digital.Dtos;
 using cardapio_digital.Enums;
+using System.Security.Claims;
 
 
 namespace cardapio_digital.Endpoints
@@ -14,7 +15,7 @@ public static class CadastroPaisEndpoints
 {
 public static void  MapCadastroPaisEndpoints(this WebApplication app)
 {
-app.MapPost("/pais", async (CadastroPaisDto dto, AppDbContext context) =>
+app.MapPost("/pais", async (CadastroPaisDto dto, AppDbContext context, HttpContext http) =>
 {
   if (string.IsNullOrWhiteSpace(dto.Cpf))
   return Results.BadRequest("CPF obrigatório.");
@@ -22,10 +23,19 @@ app.MapPost("/pais", async (CadastroPaisDto dto, AppDbContext context) =>
   if (string.IsNullOrWhiteSpace(dto.Telefone))
   return Results.BadRequest("Telefone obrigatório.");
 
-  if (dto.UsuarioId <= 0)
-  return Results.BadRequest("Usuário inválido.");
+ var usuarioId = http.User
+    .FindFirst(ClaimTypes.NameIdentifier)?
+    .Value;
 
-  var usuario = await context.Usuarios.FirstOrDefaultAsync(u => u.Id == dto.UsuarioId);
+    if (usuarioId == null)
+{
+    return Results.Unauthorized();
+}
+
+var idUsuario = int.Parse(usuarioId);
+
+  var usuario = await context.Usuarios
+    .FirstOrDefaultAsync(u => u.Id == idUsuario);
 
   if (usuario == null)
   return Results.NotFound("Usuário não encontrado.");
@@ -33,17 +43,18 @@ app.MapPost("/pais", async (CadastroPaisDto dto, AppDbContext context) =>
   if (usuario.Perfil != PerfilUsuario.Pais)
   return Results.BadRequest("O usuário informado não possui perfil de Pai.");
 
-  var paiExiste = await context.Pais.AnyAsync(p => p.UsuarioId == dto.UsuarioId);
+  var paiExiste = await context.Pais
+    .AnyAsync(p => p.UsuarioId == idUsuario);
 
   if (paiExiste)
   return Results.BadRequest("Este usuário já possui um cadastro de pai.");
 
-  var pai = new Pais
+var pai = new Pais
 {
    Nome = dto.Nome,
    Cpf = dto.Cpf,
    Telefone = dto.Telefone,
-   UsuarioId = dto.UsuarioId
+   UsuarioId = idUsuario
 };
 context.Pais.Add(pai);
 await context.SaveChangesAsync();
@@ -55,7 +66,8 @@ return Results.Created($"/pais/{pai.Id}", new
   pai.Telefone,
   pai.UsuarioId
 });
-    });        
+    })
+    .RequireAuthorization("Pais");      
 }
         
 }

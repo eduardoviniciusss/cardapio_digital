@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using cardapio_digital.Entities;
 using cardapio_digital.Dtos;
 using cardapio_digital.Enums;
+using System.Security.Claims;
 
 namespace cardapio_digital.Endpoints
 {
@@ -14,7 +15,7 @@ namespace cardapio_digital.Endpoints
 public static void MapCadastroFilhoEndpoints(this WebApplication app)
 {
 //POST
-app.MapPost("/filhos", async (CadastroFilhoDto dto,AppDbContext context) =>
+app.MapPost("/filhos", async (CadastroFilhoDto dto,AppDbContext context, HttpContext http) =>
 { 
   if (string.IsNullOrWhiteSpace(dto.Nome))
   return Results.BadRequest("Nome obrigatório.");
@@ -22,17 +23,22 @@ app.MapPost("/filhos", async (CadastroFilhoDto dto,AppDbContext context) =>
   if (string.IsNullOrWhiteSpace(dto.Telefone))
   return Results.BadRequest("Telefone obrigatório.");
 
-  if (dto.PaiId <= 0)
-    return Results.BadRequest("Pais inválido.");
-
   if (dto.EscolaId <= 0)
     return Results.BadRequest("Escola inválida.");
 
 if (dto.DataNascimento == default)
 return Results.BadRequest("Data de nascimento obrigatória.");
 
-var pai = await context.Pais.Include(p => p.Usuario)
-.FirstOrDefaultAsync(p => p.Id == dto.PaiId);
+var usuarioId = http.User
+    .FindFirst(ClaimTypes.NameIdentifier)?
+    .Value;
+
+if (usuarioId == null)
+{
+    return Results.Unauthorized();
+}
+
+var pai = await context.Pais.Include(p => p.Usuario).FirstOrDefaultAsync(p => p.UsuarioId == int.Parse(usuarioId));
 
   if (pai == null)
     return Results.UnprocessableEntity( "Pai não encontrado");
@@ -46,7 +52,7 @@ var pai = await context.Pais.Include(p => p.Usuario)
     return Results.UnprocessableEntity("Escola não encontrada.");
 
   var filhoExistente = await context.Filhos.FirstOrDefaultAsync
-  (f =>f.Nome == dto.Nome && f.DataNascimento == dto.DataNascimento &&f.PaiId == dto.PaiId);
+ (f =>f.Nome == dto.Nome &&f.DataNascimento == dto.DataNascimento &&f.PaiId == pai.Id);
 
   if (filhoExistente != null)
  {
@@ -61,25 +67,34 @@ var pai = await context.Pais.Include(p => p.Usuario)
     Nome = dto.Nome,
     DataNascimento = dto.DataNascimento,
     Telefone = dto.Telefone,
-    PaiId = dto.PaiId,
+    PaiId = pai.Id,
     EscolaId = dto.EscolaId
 };
 
 context.Filhos.Add(filho);
 await context.SaveChangesAsync();
 return Results.Ok("Filho cadastrado com sucesso.");
-});
+})
+.RequireAuthorization("Pais");
 
 //GET
-app.MapGet("/pais/{id}/filhos", async (int id,AppDbContext db) =>
+app.MapGet("meus-filhos", async (HttpContext http, AppDbContext db) =>
 {
-var pai = await db.Pais.FirstOrDefaultAsync(p => p.Id == id);
+  var usuarioId = http.User.FindFirst(ClaimTypes.NameIdentifier)? .Value;
+
+if (usuarioId == null)
+{
+    return Results.Unauthorized();
+}
+var pai = await db.Pais.FirstOrDefaultAsync(p => p.UsuarioId == int.Parse(usuarioId));
+
 if (pai == null)
 {
-  return Results.NotFound("Pai não encontrado.");
+    return Results.NotFound("Pai não encontrado.");
 }
-var filhos = await db.Filhos
-.Where(f => f.PaiId == id)
+
+ var filhos = await db.Filhos
+.Where(f => f.PaiId == pai.Id)
 .Include(f => f.Pais)
 .Include(f => f.Escola)
 .Select(f => new CadastroFilhoRespostaDto
@@ -113,7 +128,8 @@ var filhos = await db.Filhos
 
 
 return Results.Ok(filhos);
-});
+})
+.RequireAuthorization("Pais");
   
         }  
     }
