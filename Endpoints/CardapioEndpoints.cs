@@ -14,7 +14,7 @@ public static class CardapioEndpoints
 public static void MapCardapioEndpoints(this WebApplication app)
 {
 //GET CARDAPIO
-app.MapGet("/cardapio", async (AppDbContext db, HttpContext http) =>
+app.MapGet("/menus", async (AppDbContext db, HttpContext http) =>
 {
     var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
@@ -30,7 +30,7 @@ if (escola == null)
 });
 
 //GET ID CARDAPIO
-app.MapGet("/cardapio/{id}", async(int id, AppDbContext db,  HttpContext http) =>
+app.MapGet("/menus/{id}", async(int id, AppDbContext db,  HttpContext http) =>
 {
     var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
@@ -51,7 +51,7 @@ app.MapGet("/cardapio/{id}", async(int id, AppDbContext db,  HttpContext http) =
 });
 
 //POST CARDAPIO
-app.MapPost("/cardapio", async (AppDbContext db, CardapioDto dto, HttpContext http) =>
+app.MapPost("/menus", async (AppDbContext db, CardapioDto dto, HttpContext http) =>
 { 
     var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
@@ -87,12 +87,12 @@ app.MapPost("/cardapio", async (AppDbContext db, CardapioDto dto, HttpContext ht
         Nome = cardapioComEscola.Nome,
         Escola = cardapioComEscola.Escola
     };
-    return Results.Created($"/cardapio/{cardapio.Id}", response);
+    return Results.Created($"/menus/{cardapio.Id}", response);
 })
 .RequireAuthorization("Cantina");
 
 //PUT CARDAPIO
-app.MapPut("/cardapio/{id}", async (int id, AppDbContext db, CardapioDto dto, HttpContext http) =>
+app.MapPut("/menus/{id}", async (int id, AppDbContext db, CardapioDto dto, HttpContext http) =>
 {
     var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
@@ -128,7 +128,7 @@ app.MapPut("/cardapio/{id}", async (int id, AppDbContext db, CardapioDto dto, Ht
 .RequireAuthorization("Cantina");
 
 //PATCH CARDAPIO
-app.MapPatch("/cardapio/{id}", async (int id, AppDbContext db, CardapioDto dto, HttpContext http) =>
+app.MapPatch("/menus/{id}", async (int id, AppDbContext db, CardapioDto dto, HttpContext http) =>
     {
     var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
@@ -160,7 +160,7 @@ var cardapio = await db.Cardapios.FirstOrDefaultAsync(c => c.Id == id && c.Escol
 .RequireAuthorization("Cantina");
 
 //DELETE CARDAPIO
-app.MapDelete("/cardapio/{id}", async (int id, AppDbContext db, HttpContext http) =>
+app.MapDelete("/menus/{id}", async (int id, AppDbContext db, HttpContext http) =>
 {
    var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 

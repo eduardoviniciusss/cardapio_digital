@@ -14,7 +14,7 @@ public static class ProdutoEndpoints
 public static void MapProdutoEndpoints(this WebApplication app)
 {
 //GET PRODUTO
-app.MapGet("/produto",async (AppDbContext db, HttpContext http) =>
+app.MapGet("/products",async (AppDbContext db, HttpContext http) =>
 {
     var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
@@ -37,7 +37,7 @@ if (escola == null)
 .RequireAuthorization("Cantina");
 
 //GET ID
-app.MapGet("/produto/{id}", async(int id, AppDbContext db, HttpContext http) =>
+app.MapGet("/products/{id}", async(int id, AppDbContext db, HttpContext http) =>
 {
     var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
@@ -66,7 +66,7 @@ app.MapGet("/produto/{id}", async(int id, AppDbContext db, HttpContext http) =>
  .RequireAuthorization("Cantina");
 
 //POST PRODUTO
-app.MapPost("/produto", async (AppDbContext db, ProdutoDto dto, HttpContext http) =>
+app.MapPost("/products", async (AppDbContext db, ProdutoDto dto, HttpContext http) =>
  {
     var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
     var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
@@ -109,12 +109,12 @@ app.MapPost("/produto", async (AppDbContext db, ProdutoDto dto, HttpContext http
         Preco = produtoComCategoria.Preco,
         Categoria = produtoComCategoria.Categoria
     };
-    return Results.Created($"/produto/{produto.Id}", response);
+    return Results.Created($"/products/{produto.Id}", response);
  })
  .RequireAuthorization("Cantina");
 
 //PUT PRODUTO
-app.MapPut("/produto/{id}", async (int id, AppDbContext db, ProdutoDto dto, HttpContext http) =>
+app.MapPut("/products/{id}", async (int id, AppDbContext db, ProdutoDto dto, HttpContext http) =>
  {
    var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
@@ -172,7 +172,7 @@ var produto = await db.Produtos.FirstOrDefaultAsync(p =>p.Id == id && p.EscolaId
 
 
 // PATCH PRODUTO
-app.MapPatch("/produto/{id}", async (int id, AppDbContext db, ProdutoDto dto, HttpContext http) =>
+app.MapPatch("/products/{id}", async (int id, AppDbContext db, ProdutoDto dto, HttpContext http) =>
 {
     var usuarioId = int.Parse( http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
@@ -225,7 +225,7 @@ var produto = await db.Produtos.FirstOrDefaultAsync(p =>p.Id == id && p.EscolaId
 .RequireAuthorization("Cantina");
 
 // DELETE PRODUTO
-app.MapDelete("/produto/{id}", async (int id, AppDbContext db, HttpContext http) =>
+app.MapDelete("/products/{id}", async (int id, AppDbContext db, HttpContext http) =>
 {
     var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 

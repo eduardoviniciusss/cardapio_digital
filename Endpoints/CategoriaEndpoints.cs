@@ -14,7 +14,7 @@ public static class CategoriaEndpoints
 public static void MapCategoriaEndpoints(this WebApplication app)
 {
 //GET CATEGORIA
-app.MapGet("/categoria", async (AppDbContext db,HttpContext http) =>
+app.MapGet("/categories", async (AppDbContext db,HttpContext http) =>
 {
     var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
     var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
@@ -29,7 +29,7 @@ return Results.Ok(categorias);
 .RequireAuthorization("Cantina");
 
 //GET ID CATEGORIA
-app.MapGet("/categoria/{id}", async (int id, AppDbContext db, HttpContext http) =>
+app.MapGet("/categories/{id}", async (int id, AppDbContext db, HttpContext http) =>
 {
     var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
     var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
@@ -50,7 +50,7 @@ if (categoria is null)
 .RequireAuthorization("Cantina");
 
 //POST CATEGORIA
-app.MapPost("/categoria", async (AppDbContext db, CategoriaDto dto, HttpContext http) =>
+app.MapPost("/categories", async (AppDbContext db, CategoriaDto dto, HttpContext http) =>
 {
 
 var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
@@ -78,13 +78,13 @@ var categoria = new Categoria
 db.Categorias.Add(categoria);
 await db.SaveChangesAsync();
 return Results.Created(
-$"/categoria/{categoria.Id}",categoria);
+$"/categories/{categoria.Id}",categoria);
 })
 .RequireAuthorization("Cantina");
 
 
 //PUT CATEGORIA
-app.MapPut("/categoria/{id}", async (int id, AppDbContext db, CategoriaDto dto, HttpContext http) =>
+app.MapPut("/categories/{id}", async (int id, AppDbContext db, CategoriaDto dto, HttpContext http) =>
 {
    var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
    var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);
@@ -106,7 +106,7 @@ var categoria = await db.Categorias.FirstOrDefaultAsync(c =>c.Id == id && c.Esco
 .RequireAuthorization("Cantina");
 
 //DELETE CATEGORIA
-app.MapDelete("/categoria/{id}", async (int id, AppDbContext db, HttpContext http) =>
+app.MapDelete("/categories/{id}", async (int id, AppDbContext db, HttpContext http) =>
 {
    var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
    var escola = await db.Escolas.FirstOrDefaultAsync(e => e.UsuarioId == usuarioId);

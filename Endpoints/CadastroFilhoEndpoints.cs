@@ -15,7 +15,7 @@ namespace cardapio_digital.Endpoints
 public static void MapCadastroFilhoEndpoints(this WebApplication app)
 {
 //POST
-app.MapPost("/filhos", async (CadastroFilhoDto dto,AppDbContext context, HttpContext http) =>
+app.MapPost("/children", async (CadastroFilhoDto dto,AppDbContext context, HttpContext http) =>
 { 
   if (string.IsNullOrWhiteSpace(dto.Nome))
   return Results.BadRequest("Nome obrigatório.");
@@ -78,7 +78,7 @@ return Results.Ok("Filho cadastrado com sucesso.");
 .RequireAuthorization("Pais");
 
 //GET
-app.MapGet("meus-filhos", async (HttpContext http, AppDbContext db) =>
+app.MapGet("/children", async (HttpContext http, AppDbContext db) =>
 {
   var usuarioId = http.User.FindFirst(ClaimTypes.NameIdentifier)? .Value;
 

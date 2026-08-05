@@ -13,7 +13,7 @@ public static class CardapioProdutoEndpoints
 public static void MapCardapioProdutoEndpoints(this WebApplication app)
 {
 // GET CARDAPIO_PRODUTO
-app.MapGet("/cardapio-produto", async (AppDbContext db) =>
+app.MapGet("/menus-productos", async (AppDbContext db) =>
 {
     var cardapioProdutos = await db.CardapioProdutos
     .Include(cp => cp.Cardapio).ThenInclude(c => c.Escola)
@@ -34,7 +34,7 @@ app.MapGet("/cardapio-produto", async (AppDbContext db) =>
 });
 
 // GET ID CARDAPIO_PRODUTO
-app.MapGet("/cardapio-produto/{cardapioId}/{produtoId}",async (int cardapioId, int produtoId, AppDbContext db) =>
+app.MapGet("/menus-productos/{cardapioId}/{produtoId}",async (int cardapioId, int produtoId, AppDbContext db) =>
 {
     var cardapioProduto = await db.CardapioProdutos
     .Include(cp => cp.Cardapio).ThenInclude(c => c.Escola)
@@ -59,7 +59,7 @@ app.MapGet("/cardapio-produto/{cardapioId}/{produtoId}",async (int cardapioId, i
 });
 
 // POST CARDAPIO_PRODUTO
-app.MapPost("/cardapio-produto",async (AppDbContext db, CardapioProdutoDto dto) =>
+app.MapPost("/menus-productos",async (AppDbContext db, CardapioProdutoDto dto) =>
 {
     var cardapioExiste = await db.Cardapios.FindAsync(dto.CardapioId);
     if (cardapioExiste is null)
@@ -96,13 +96,13 @@ app.MapPost("/cardapio-produto",async (AppDbContext db, CardapioProdutoDto dto) 
     };
 
     return Results.Created(
-        $"/cardapio-produto/{dto.CardapioId}/{dto.ProdutoId}",
+        $"/menus-products/{dto.CardapioId}/{dto.ProdutoId}",
         response
     );
 });
 
 // PUT CARDAPIO_PRODUTO
-app.MapPut("/cardapio-produto/{cardapioId}/{produtoId}", async (int cardapioId,int produtoId,AppDbContext db,CardapioProdutoDto dto) =>
+app.MapPut("/menus-productos/{cardapioId}/{produtoId}", async (int cardapioId,int produtoId,AppDbContext db,CardapioProdutoDto dto) =>
 {
     var cardapioProduto = await db.CardapioProdutos.FirstOrDefaultAsync(cp =>cp.CardapioId == cardapioId && 
     cp.ProdutoId == produtoId);
@@ -143,7 +143,7 @@ app.MapPut("/cardapio-produto/{cardapioId}/{produtoId}", async (int cardapioId,i
 });
 
 // PATCH CARDAPIO_PRODUTO
-app.MapPatch("/cardapio-produto/{cardapioId}/{produtoId}", async (int cardapioId, int produtoId, AppDbContext db, CardapioProdutoDto dto) =>
+app.MapPatch("/menus-productos/{cardapioId}/{produtoId}", async (int cardapioId, int produtoId, AppDbContext db, CardapioProdutoDto dto) =>
 {
     var cardapioProduto = await db.CardapioProdutos.FirstOrDefaultAsync
     (cp => cp.CardapioId == cardapioId && cp.ProdutoId == produtoId);
@@ -190,7 +190,7 @@ app.MapPatch("/cardapio-produto/{cardapioId}/{produtoId}", async (int cardapioId
 });
 
 // DELETE CARDAPIO_PRODUTO
-app.MapDelete("/cardapio-produto/{cardapioId}/{produtoId}",async (int cardapioId, int produtoId, AppDbContext db) =>
+app.MapDelete("/menus-productos/{cardapioId}/{produtoId}",async (int cardapioId, int produtoId, AppDbContext db) =>
 {
     var cardapioProduto = await db.CardapioProdutos.FirstOrDefaultAsync
     (cp => cp.CardapioId == cardapioId && cp.ProdutoId == produtoId);

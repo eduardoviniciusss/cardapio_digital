@@ -13,7 +13,7 @@ public static class CadastroUsuarioEndpoints
 {
 public static void MapCadastroUsuarioEndpoints(this WebApplication app)
 {
-app.MapPost("/usuarios", async (CadastroUsuarioDto dto, AppDbContext context) =>
+app.MapPost("/users", async (CadastroUsuarioDto dto, AppDbContext context) =>
 {
   if(string.IsNullOrWhiteSpace(dto.Nome))
   return Results.BadRequest("Nome obrigatório");

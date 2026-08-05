@@ -15,7 +15,7 @@ public static class CadastroPaisEndpoints
 {
 public static void  MapCadastroPaisEndpoints(this WebApplication app)
 {
-app.MapPost("/pais", async (CadastroPaisDto dto, AppDbContext context, HttpContext http) =>
+app.MapPost("/parents", async (CadastroPaisDto dto, AppDbContext context, HttpContext http) =>
 {
   if (string.IsNullOrWhiteSpace(dto.Cpf))
   return Results.BadRequest("CPF obrigatório.");
@@ -58,7 +58,7 @@ var pai = new Pais
 };
 context.Pais.Add(pai);
 await context.SaveChangesAsync();
-return Results.Created($"/pais/{pai.Id}", new
+return Results.Created($"/parents/{pai.Id}", new
 {
   pai.Id,
   pai.Nome,

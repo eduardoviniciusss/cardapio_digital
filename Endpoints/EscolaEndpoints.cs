@@ -15,7 +15,7 @@ public static class EscolaEndpoints
 public static void MapEscolaEndpoints(this WebApplication app)
 {
  //GET ESCOLA
-app.MapGet("/escola", async (AppDbContext db,HttpContext http) =>
+app.MapGet("/schools", async (AppDbContext db,HttpContext http) =>
 {
     var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
     var escola = await db.Escolas.FirstOrDefaultAsync(e =>e.UsuarioId == usuarioId);
@@ -28,7 +28,7 @@ return Results.Ok(escola);
 }).RequireAuthorization("Cantina");
 
 //GET ID ESCOLA
-app.MapGet("/escola/{id}", async (int id, AppDbContext db, HttpContext http) =>
+app.MapGet("/schools/{id}", async (int id, AppDbContext db, HttpContext http) =>
 {
   var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value );
 
@@ -43,7 +43,7 @@ return Results.Ok(escola);
 .RequireAuthorization("Cantina");
 
 //POST ESCOLA
-app.MapPost("/escola", async (AppDbContext db, EscolaDto dto, HttpContext http) =>
+app.MapPost("/schools", async (AppDbContext db, EscolaDto dto, HttpContext http) =>
 {
     var usuarioId = int.Parse(
     http.User
@@ -77,13 +77,13 @@ app.MapPost("/escola", async (AppDbContext db, EscolaDto dto, HttpContext http) 
     Telefone = escola.Telefone,
     Turnos = escola.Turnos
 };
-    return Results.Created($"/escola/{escola.Id}", resposta);
+    return Results.Created($"/schools/{escola.Id}", resposta);
 })
 .RequireAuthorization("Administrador");
 
 
 //PUT ESCOLA
-app.MapPut("/escola/{id}",  async (int id, AppDbContext db, EscolaDto dto, HttpContext http) =>
+app.MapPut("/schools/{id}",  async (int id, AppDbContext db, EscolaDto dto, HttpContext http) =>
 {
     var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value );
     var escola = await db.Escolas.FirstOrDefaultAsync(e =>e.Id == id && e.UsuarioId == usuarioId );
@@ -101,7 +101,7 @@ app.MapPut("/escola/{id}",  async (int id, AppDbContext db, EscolaDto dto, HttpC
 .RequireAuthorization("Cantina");
 
 //PATCH ESCOLA
-app.MapPatch("/escola/{id}", async (int id, AppDbContext db, EscolaDto dto, HttpContext http) =>
+app.MapPatch("/schools/{id}", async (int id, AppDbContext db, EscolaDto dto, HttpContext http) =>
 {
     var usuarioId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
     var escola = await db.Escolas.FirstOrDefaultAsync(e =>e.Id == id && e.UsuarioId == usuarioId);
@@ -125,7 +125,7 @@ app.MapPatch("/escola/{id}", async (int id, AppDbContext db, EscolaDto dto, Http
 .RequireAuthorization("Cantina");
 
 //DELETE 
-app.MapDelete("/escola/{id}", async (int id,AppDbContext db ) =>
+app.MapDelete("/schools/{id}", async (int id,AppDbContext db ) =>
 {
     var escola = await db.Escolas.FindAsync(id);
     if (escola is null) return Results.NotFound("Escola não existente!");
