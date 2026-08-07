@@ -1,22 +1,24 @@
 # 🍽️ Cardápio Digital
 
-API desenvolvida para gerenciamento de pedidos em uma cantina escolar, permitindo que responsáveis realizem pedidos antecipados enquanto a cantina organiza a produção de forma eficiente.
+API desenvolvida para gerenciamento de pedidos em uma cantina escolar, com cadastro de escolas, cardápios, produtos, usuários, pais e filhos, além de autenticação e autorização por perfil.
 
-Além da gestão de escolas, cardápios e produtos, o projeto agora também conta com uma **estrutura inicial de autenticação**, com **cadastro e login de usuários**, servindo como base para controle de acesso por perfil dentro do sistema.
+Nesta versão, o projeto já incorpora uma estrutura mais completa para o fluxo de negócio da cantina, incluindo cadastro e login de usuários, políticas de acesso por papéis e endpoints protegidos para diferentes perfis.
 
 ---
 
 ## 🎯 Objetivo
 
-Digitalizar o processo de agendamento de lanches escolares, centralizando a comunicação entre pais e cantinas em uma plataforma única, escalável e baseada em boas práticas de desenvolvimento.
+Digitalizar o processo de agendamento e organização de lanches escolares, centralizando a comunicação entre cantina, escolas e responsáveis em uma API única, escalável e preparada para evolução.
 
-Nesta fase atual, o foco está em consolidar a base estrutural da API com:
+Nesta fase atual, o foco está em consolidar:
 
 - gerenciamento de escolas
 - gerenciamento de cardápios
 - gerenciamento de produtos
 - relacionamento entre cardápios e produtos
-- autenticação de usuários com perfis distintos
+- cadastro e login de usuários
+- autenticação JWT com autorização por perfil
+- cadastro de pais e filhos
 
 ---
 
@@ -24,9 +26,9 @@ Nesta fase atual, o foco está em consolidar a base estrutural da API com:
 
 ### 🏫 Cantina
 
-- Cadastro de escolas
-- Gerenciamento de cardápios
-- Gerenciamento de produtos
+- Cadastro e gerenciamento de escolas
+- Gerenciamento de cardápios por escola
+- Gerenciamento de produtos por escola
 - Organização por categorias
 - Associação de produtos aos cardápios
 
@@ -35,112 +37,50 @@ Nesta fase atual, o foco está em consolidar a base estrutural da API com:
 CRUD completo de produtos:
 
 - Nome
-- Descrição
 - Preço
 - Categoria
+- Vinculação à escola
 
 ### 📋 Cardápios
 
 - Cadastro de múltiplos cardápios por escola
-- Associação de produtos em diferentes cardápios
+- Associação de produtos aos cardápios
 - Estrutura preparada para promoções e cardápios sazonais
 
-### 🔐 Autenticação
+### 🔐 Autenticação e autorização
 
 - Cadastro de usuários com nome, email, senha e perfil
 - Login de usuários com validação de credenciais
 - Armazenamento seguro de senha com hash BCrypt
 - Validação de email duplicado
-- Estrutura inicial de controle de acesso por perfil
+- Autenticação JWT
+- Políticas de autorização para perfis como Administrador, Cantina e Pais
 
-### 👨‍👩‍👧 Responsáveis
+### 👨‍👩‍👧 Responsáveis e filhos
 
-> **Planejado para as próximas etapas do projeto**
-
-- Cadastro de alunos
-- Agendamento de pedidos
-- Controle de pedidos por período
+- Cadastro de pais associados a usuários
+- Cadastro de filhos vinculados a pais e escolas
+- Consulta dos filhos cadastrados por responsável
 
 ---
 
-## 🔐 Autenticação e Controle de Acesso
+## 🔐 Perfis e controle de acesso
 
-O sistema possui uma estrutura inicial de autenticação baseada em usuários e perfis de acesso.
+A API já conta com políticas de autorização baseadas em perfis:
 
-### Perfis atuais
+- **Administrador** → acesso total à administração do sistema
+- **Cantina** → gerenciamento de cardápios, produtos e categorias
+- **Pais** → cadastro e consulta de filhos
 
-Atualmente a autenticação foi pensada para os seguintes perfis:
-
-- **Admin** → responsável pela administração geral do sistema
-- **Escola** → responsável por gerenciar cardápios e produtos da escola
-
-> A área dos responsáveis/pais ainda será implementada futuramente.
-
-### Funcionalidades de autenticação implementadas
+### Funcionalidades implementadas
 
 - Cadastro de usuários
 - Login de usuários
 - Hash de senha com BCrypt
 - Verificação de email já cadastrado
 - Validação de senha no login
-
----
-
-## 📝 Fluxo de Cadastro
-
-O fluxo de cadastro foi pensado para garantir que os dados do usuário sejam validados antes de serem persistidos no banco.
-
-### Etapas do cadastro
-
-1. O usuário acessa a tela de cadastro
-2. Preenche **nome, email, senha e perfil**
-3. A API valida os dados recebidos
-4. O sistema verifica se o email já existe no banco
-5. Se o email já existir, o cadastro é bloqueado e um erro é retornado
-6. Se o email não existir, a senha é convertida em **hash com BCrypt**
-7. O usuário é salvo no banco de dados
-8. O cadastro é concluído com sucesso
-
-### Fluxograma de cadastro
-
-Link do fluxograma:  
-👉 https://drive.google.com/file/d/1obazlDc6-nbhPAEMvPbMXQlUs1z1-mZn/view?usp=sharing
-
----
-
-## 🔑 Fluxo de Login
-
-O fluxo de login foi modelado para autenticar usuários já cadastrados no sistema, comparando a senha digitada com o hash salvo no banco de dados.
-
-### Etapas do login
-
-1. O usuário acessa a tela de login
-2. Informa **email e senha**
-3. A API busca o usuário pelo email
-4. O sistema verifica se o usuário existe
-5. Se o usuário não existir, retorna erro
-6. Se o usuário existir, a senha digitada é comparada com o hash salvo
-7. Se a senha estiver incorreta, retorna erro
-8. Se a senha estiver correta, o login é validado
-
-### Fluxograma de login
-
-Link do fluxograma:  
-👉 https://drive.google.com/file/d/1pCABHWHV6f8E7WtIq3StHCkmBQ5_0t6h/view?usp=sharing
-
----
-
-## 📌 Observação sobre autenticação
-
-Atualmente o projeto **ainda não utiliza JWT**.  
-Nesta etapa, o objetivo foi implementar primeiro a base de autenticação com:
-
-- cadastro de usuários
-- login
-- hash de senha
-- separação por perfil
-
-O próximo passo será evoluir essa estrutura para **autenticação com JWT e autorização por perfil**.
+- Autenticação JWT
+- Respostas de erro para não autenticado e sem permissão
 
 ---
 
@@ -152,24 +92,22 @@ O sistema foi modelado utilizando relacionamentos relacionais com foco em escala
 
 ```txt
 USUARIO
-   ├── Perfil (Admin / Escola)
+   ├── Perfil (Administrador / Cantina / Pais)
 
 ESCOLA
-   |
-CARDAPIO
-   |
-CARDAPIO_PRODUTO
-   |
-PRODUTO
-   |
-CATEGORIA
+   └── CARDAPIO
+          └── CARDAPIO_PRODUTO
+                 └── PRODUTO
+                        └── CATEGORIA
+
+PAIS
+   └── FILHO
 ```
 
 ### 📌 Regras da modelagem
 
 - Um usuário possui um único perfil de acesso
-- Um usuário com perfil Escola está vinculado a uma única escola
-- Cada escola possui um único usuário responsável
+- Um usuário com perfil Cantina ou Administrador pode estar vinculado a uma escola
 - Uma escola pode possuir vários cardápios
 - Um cardápio pode possuir vários produtos
 - Um produto pode estar em vários cardápios
@@ -186,12 +124,13 @@ CATEGORIA
 
 ## 🛠️ Tecnologias
 
-- .NET 8
+- .NET 10
 - ASP.NET Core Minimal API
 - Entity Framework Core
 - PostgreSQL
 - BCrypt.Net-Next
-- DrawSQL
+- JWT Bearer Authentication
+- Swagger / OpenAPI
 - Git
 - GitHub
 - Postman
@@ -203,7 +142,7 @@ CATEGORIA
 ```bash
 cardapio_digital/
 ├── Data/
-├── DTOs/
+├── Dtos/
 ├── Endpoints/
 ├── Entities/
 ├── Enums/
@@ -219,7 +158,7 @@ cardapio_digital/
 
 ### 📋 Pré-requisitos
 
-- .NET SDK 8+
+- .NET SDK 10+
 - PostgreSQL
 - Git
 - VS Code ou Visual Studio
@@ -245,6 +184,16 @@ Configure no `appsettings.json`:
 ```json
 "ConnectionStrings": {
   "DefaultConnection": "Host=localhost;Port=5432;Database=cantina_digital;Username=seu_usuario;Password=sua_senha"
+}
+```
+
+Adicione também os valores de JWT no `appsettings.json`:
+
+```json
+"Jwt": {
+  "Issuer": "cardapio-digital",
+  "Audience": "cardapio-digital",
+  "SecretKey": "sua-chave-secreta-muito-segura"
 }
 ```
 
@@ -284,8 +233,6 @@ http://localhost:5000
 POST /usuarios
 ```
 
-Responsável por cadastrar um novo usuário no sistema.
-
 #### Exemplo de body
 
 ```json
@@ -303,8 +250,6 @@ Responsável por cadastrar um novo usuário no sistema.
 POST /login
 ```
 
-Responsável por autenticar um usuário já cadastrado.
-
 #### Exemplo de body
 
 ```json
@@ -318,30 +263,53 @@ Responsável por autenticar um usuário já cadastrado.
 
 ## 🏫 Endpoints de escolas
 
-- `GET /escolas`
-- `GET /escolas/{id}`
-- `POST /escolas`
-- `PUT /escolas/{id}`
-- `PATCH /escolas/{id}`
-- `DELETE /escolas/{id}`
+- `GET /schools`
+- `GET /schools/{id}`
+- `POST /schools`
+- `PUT /schools/{id}`
+- `PATCH /schools/{id}`
+- `DELETE /schools/{id}`
 
 ## 📋 Endpoints de cardápios
 
-- `GET /cardapios`
-- `GET /cardapios/{id}`
-- `POST /cardapios`
-- `PUT /cardapios/{id}`
-- `PATCH /cardapios/{id}`
-- `DELETE /cardapios/{id}`
+- `GET /menus`
+- `GET /menus/{id}`
+- `POST /menus`
+- `PUT /menus/{id}`
+- `PATCH /menus/{id}`
+- `DELETE /menus/{id}`
 
 ## 🍔 Endpoints de produtos
 
-- `GET /produtos`
-- `GET /produtos/{id}`
-- `POST /produtos`
-- `PUT /produtos/{id}`
-- `PATCH /produtos/{id}`
-- `DELETE /produtos/{id}`
+- `GET /products`
+- `GET /products/{id}`
+- `POST /products`
+- `PUT /products/{id}`
+- `PATCH /products/{id}`
+- `DELETE /products/{id}`
+
+## 🧂 Endpoints de categorias
+
+- `GET /categories`
+- `GET /categories/{id}`
+- `POST /categories`
+- `PUT /categories/{id}`
+- `DELETE /categories/{id}`
+
+## 👨‍👩‍👧 Endpoints de pais e filhos
+
+- `POST /parents`
+- `POST /children`
+- `GET /children`
+
+## 🔗 Endpoints de relacionamento cardápio-produto
+
+- `GET /menus-productos`
+- `GET /menus-productos/{cardapioId}/{produtoId}`
+- `POST /menus-productos`
+- `PUT /menus-productos/{cardapioId}/{produtoId}`
+- `PATCH /menus-productos/{cardapioId}/{produtoId}`
+- `DELETE /menus-productos/{cardapioId}/{produtoId}`
 
 ---
 
@@ -365,16 +333,15 @@ A API pode ser testada via:
 - CRUD de escolas
 - CRUD de cardápios
 - CRUD de produtos
+- CRUD de categorias
+- Cadastro de pais e filhos
 
 ---
 
 ## 🚀 Melhorias futuras
 
-- Autenticação JWT
-- Autorização por perfil
-- Área dos responsáveis/pais
-- Cadastro de alunos
-- Agendamento de pedidos
+- Expansão do fluxo de pedidos
+- Área dos responsáveis/pais com mais funcionalidades
 - Controle financeiro do aluno
 - Histórico de pedidos
 - Notificações
@@ -390,6 +357,7 @@ A API pode ser testada via:
 - **Porta em uso** → alterar `launchSettings.json`
 - **Erro no login** → verificar email cadastrado e senha
 - **Senha inválida** → verificar se o hash foi salvo corretamente no banco
+- **Erro 401/403** → verificar token JWT e permissões do perfil
 
 ---
 
