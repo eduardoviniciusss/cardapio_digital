@@ -11,95 +11,95 @@ namespace cardapio_digital
 {
     public class AppDbContext : DbContext
     {
-       public DbSet<Escola> Escolas => Set<Escola>();
+       public DbSet<School> Schools => Set<School>();
 
-       public DbSet<Cardapio> Cardapios => Set<Cardapio>();
+       public DbSet<Menu> Menus => Set<Menu>();
 
-       public DbSet<Categoria> Categorias => Set<Categoria>();
+       public DbSet<Category> Categories => Set<Category>();
 
-       public DbSet<Produto> Produtos => Set<Produto>();
+       public DbSet<Product> Products => Set<Product>();
 
-       public DbSet<CardapioProduto> CardapioProdutos => Set<CardapioProduto>();
+       public DbSet<MenuProduct> MenuProducts => Set<MenuProduct>();
 
-       public DbSet<Usuario> Usuarios => Set<Usuario>();
+       public DbSet<User> User => Set<User>();
 
-       public DbSet<Pais> Pais => Set<Pais>();
+       public DbSet<Parent> Parents => Set<Parent>();
 
-       public DbSet<Filho> Filhos => Set<Filho>();
+       public DbSet<Child> Children => Set<Child>();
 
        public AppDbContext(DbContextOptions<AppDbContext>options):
        base(options){}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<CardapioProduto>()
+            modelBuilder.Entity<MenuProduct>()
             .HasKey(cp => new
             {
-                cp.CardapioId,
-                cp.ProdutoId
+                cp.MenuId,
+                cp.ProductId
             });
 
-            // Configura o EF para salvar a List<Turno> como uma string JSON no banco
-            modelBuilder.Entity<Escola>()
-                .Property(e => e.Turnos)
+            // Configura o EF para salvar a List<Shift> como uma string JSON no banco
+            modelBuilder.Entity<School>()
+                .Property(e => e.Shifts)
                 .HasConversion(
                     v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null!),
-                    v => JsonSerializer.Deserialize<List<Turno>>(v, (JsonSerializerOptions)null!) ?? new List<Turno>()
+                    v => JsonSerializer.Deserialize<List<Shift>>(v, (JsonSerializerOptions)null!) ?? new List<Shift>()
                 );
 
-            //Configuração de Usuario
-            modelBuilder.Entity<Usuario>()
+            //Configuração de User
+            modelBuilder.Entity<User>()
             .HasIndex(x => x.Email)
             .IsUnique();
 
-            modelBuilder.Entity<Usuario>()
-            .Property(x => x.Nome)
+            modelBuilder.Entity<User>()
+            .Property(x => x.Name)
             .HasMaxLength(100);
 
-            modelBuilder.Entity<Usuario>()
+            modelBuilder.Entity<User>()
             .Property(x => x.Email)
             .HasMaxLength(150);
 
-            modelBuilder.Entity<Usuario>()
-            .Property(x => x.SenhaHash)
+            modelBuilder.Entity<User>()
+            .Property(x => x.PasswordHash)
             .HasMaxLength(500);
             
-            //Relacionamente 1:1 Usuario e Escola
-            modelBuilder.Entity<Usuario>()
-            .HasOne(u => u.Escola)
-            .WithOne(e => e.Usuario)
-            .HasForeignKey<Escola>(e => e.UsuarioId)
+            //Relacionamente 1:1 User e School
+            modelBuilder.Entity<User>()
+            .HasOne(u => u.School)
+            .WithOne(e => e.User)
+            .HasForeignKey<School>(e => e.UserId)
             .IsRequired();
 
-            //Relacionamento 1:1 Usuario e Pais"
-            modelBuilder.Entity<Pais>()
-            .HasOne(p => p.Usuario)
-            .WithOne(u => u.Pais)
-            .HasForeignKey<Pais>(p => p.UsuarioId)
+            //Relacionamento 1:1 User e Parent"
+            modelBuilder.Entity<Parent>()
+            .HasOne(p => p.User)
+            .WithOne(u => u.Parent)
+            .HasForeignKey<Parent>(p => p.UserId)
             .IsRequired();
 
-            //Relacionamento 1:N Pais e filho
-            modelBuilder.Entity<Filho>()
-            .HasOne(f => f.Pais)
-            .WithMany(p => p.Filhos)
-            .HasForeignKey(f => f.PaiId)
+            //Relacionamento 1:N Parent e filho
+            modelBuilder.Entity<Child>()
+            .HasOne(f => f.Parent)
+            .WithMany(p => p.Children)
+            .HasForeignKey(f => f.ParentId)
             .IsRequired();
 
-            //Relacionamento 1:N Escola e filho
-            modelBuilder.Entity<Filho>()
-            .HasOne(f => f.Escola)
-            .WithMany(e => e.Filhos)
-            .HasForeignKey(f => f.EscolaId)
+            //Relacionamento 1:N School e filho
+            modelBuilder.Entity<Child>()
+            .HasOne(f => f.School)
+            .WithMany(e => e.Children)
+            .HasForeignKey(f => f.SchoolId)
             .IsRequired();
 
             //Trocando int para string em perfil
-             modelBuilder.Entity<Usuario>()
-            .Property(u => u.Perfil)
+             modelBuilder.Entity<User>()
+            .Property(u => u.Role)
             .HasConversion<string>();
 
             //Prmintindo data de nascimento sem a hora
-             modelBuilder.Entity<Filho>()
-             .Property(f => f.DataNascimento)
+             modelBuilder.Entity<Child>()
+             .Property(f => f.BirthDate)
              .HasColumnType("date");
 
             

@@ -6,10 +6,10 @@ using cardapio_digital.Enums;
 
 namespace cardapio_digital.Enums
 {
-    public enum Turno
+    public enum Shift
     {
-        Manha = 1,
-        Tarde = 2,
-        Noite = 3
+        Morning = 1,
+        Afternoon = 2,
+        Evening = 3
     }
 }

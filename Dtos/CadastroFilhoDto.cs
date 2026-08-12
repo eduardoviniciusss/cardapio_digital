@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace cardapio_digital.Dtos
 {
-    public class CadastroFilhoDto
+    public class ChildRegistrationDto
     {
-        public required string Nome { get; set; }
-        public DateTime DataNascimento { get; set; }
-        public string Telefone { get; set; } = string.Empty;
-        public int EscolaId { get; set; }
+        public required string Name { get; set; }
+        public DateTime BirthDate { get; set; }
+        public string Phone { get; set; } = string.Empty;
+        public int SchoolId { get; set; }
 
     }
 }

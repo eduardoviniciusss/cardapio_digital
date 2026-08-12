@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace cardapio_digital.Dtos
 {
-    public class ProdutoDto
+    public class ProductDto
     {
-        public required string Nome { get; set; }
+        public required string Name { get; set; }
 
-        public decimal Preco { get; set; }
+        public decimal Price { get; set; }
 
-        public int CategoriaId { get; set; }
+        public int CategoryId { get; set; }
     }
 }

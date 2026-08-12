@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace cardapio_digital.Dtos
 {
-    public class CardapioProdutoDto
+    public class MenuProductDto
     {
-        public int CardapioId { get; set; }
+        public int  MenuId { get; set; }
 
-        public int ProdutoId { get; set; }
+        public int ProductId { get; set; }
     }
 }

@@ -5,14 +5,14 @@ using System.Threading.Tasks;
 
 namespace cardapio_digital.Dtos
 {
-    public class CardapioProdutoRespostaDto
+    public class MenuProductResponseDto
     {
-       public int CardapioId { get; set; }
-        public required string Cardapio { get; set; }
+       public int MenuId { get; set; }
+        public required string Menu { get; set; }
 
-        public int ProdutoId { get; set; } 
-        public required string Produto { get; set; }
+        public int ProductId { get; set; } 
+        public required string Product { get; set; }
 
-        public required string Categoria { get; set; }
+        public required string Category { get; set; }
     }
 }

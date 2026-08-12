@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace cardapio_digital.Dtos
 {
-    public class CadastroPaisDto
+    public class ParentRegistrationDto
     {
-        public required string Nome { get; set; }= string.Empty;
+        public required string Name { get; set; }= string.Empty;
         public string Cpf { get; set; } = string.Empty;
 
-        public string Telefone { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
 
     }
 }

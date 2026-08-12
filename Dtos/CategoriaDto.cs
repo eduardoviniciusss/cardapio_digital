@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace cardapio_digital.Dtos
 {
-    public class CategoriaDto
+    public class CategoryDto
     {
-        public required string Nome { get; set; }
+        public required string Name { get; set; }
     }
 }

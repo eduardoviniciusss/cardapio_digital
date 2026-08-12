@@ -7,15 +7,15 @@ using cardapio_digital.Enums;
 
 namespace cardapio_digital.Dtos
 {
-    public class EscolaDto
+    public class SchoolDto
     {
-        public required string Nome { get; set; }
+        public required string Name { get; set; }
 
-        public required string Endereco { get; set; } 
+        public required string Address { get; set; } 
 
-        public required string Telefone { get; set; } 
+        public required string Phone { get; set; } 
 
-        public required List<Turno> Turnos { get; set; } = new();
+        public required List<Shift> Shifts { get; set; } = new();
 
         
     

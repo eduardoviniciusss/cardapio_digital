@@ -6,11 +6,11 @@ using cardapio_digital.Enums;
 
 namespace cardapio_digital.Dtos
 {
-    public class CadastroUsuarioDto
+    public class UserRegistrationDto
     {
-        public required string Nome { get; set; }
+        public required string Name { get; set; }
         public required string Email { get; set; }
-        public required string Senha { get; set; }
-        public required PerfilUsuario Perfil { get; set; }
+        public required string Password { get; set; }
+        public required UserRole Role { get; set; }
     }
 }

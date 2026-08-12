@@ -6,12 +6,12 @@ using cardapio_digital.Entities;
 
 namespace cardapio_digital.Dtos
 {
-    public class CadastroPaisRespondeDto
+    public class ParentRegistrationResponseDto
     {
-        public string Nome { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         public int Id { get; set; }
         public string Cpf { get; set; } = string.Empty;
-        public string Telefone { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
         
     }
 }

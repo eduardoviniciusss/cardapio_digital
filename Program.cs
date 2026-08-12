@@ -17,16 +17,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("Administrador",policy => policy.RequireRole("Administrador"));
+    options.AddPolicy("Administrator",policy => policy.RequireRole("Administrator"));
 
-    options.AddPolicy("Cantina",policy => policy.RequireRole("Cantina", "Administrador"));
+    options.AddPolicy("Canteen",policy => policy.RequireRole("Canteen", "Administrator"));
 
-    options.AddPolicy("Pais", policy => policy.RequireRole("Pais","Administrador"));
+    options.AddPolicy("Parent", policy => policy.RequireRole("Parent","Administrator"));
 });
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
-    // Permite que a API entenda Enums como texto (ex: "Manha") no JSON
+    // Permite que a API entenda Enums como texto (ex: "Morning") no JSON
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
     // Aceita propriedades vindas no JSON com nomes em camelCase ou PascalCase
     options.SerializerOptions.PropertyNameCaseInsensitive = true;
@@ -57,14 +57,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme) .AddJ
     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
     context.Response.ContentType = "application/json";
     
-    await context.Response.WriteAsJsonAsync("Você precisa estar autenticado para acessar este recurso.");
+    await context.Response.WriteAsJsonAsync("You need to be logged in to access this feature.");
    },
    OnForbidden = async context =>
    {
     context.Response.StatusCode = StatusCodes.Status403Forbidden;
     context.Response.ContentType = "application/json";
 
-    await context.Response.WriteAsJsonAsync("Você não tem permissão para acessar este recurso.");
+    await context.Response.WriteAsJsonAsync("You don't have permission to access this resource.");
         }
     };
   });
@@ -97,14 +97,15 @@ app.MapGet("/healthy", () =>
         return result;
 });
 
-app.MapEscolaEndpoints();
-app.MapCadastroUsuarioEndpoints();
-app.MapCardapioEndpoints();
-app.MapCategoriaEndpoints();
-app.MapProdutoEndpoints();
-app.MapCardapioProdutoEndpoints();
-app.MapLoginUsuarioEndpoints();
-app.MapCadastroPaisEndpoints();
-app.MapCadastroFilhoEndpoints();
+app.MapSchoolEndpoints();
+app.MapUserRegistrationEndpoints();
+app.MapMenuEndpoints();
+app.MapCategoryEndpoints();
+app.MapProductEndpoints();
+app.MapMenuProductEndpoints();
+app.MapLoginUserEndpoints();
+app.MapParentRegistrationEndpoints();
+app.MapChildRegistrationEndpoints();
 
 app.Run(); 
+

@@ -6,11 +6,11 @@ using cardapio_digital.Entities;
 
 namespace cardapio_digital.Dtos
 {
-    public class CardapioRespostaDto
+    public class MenuResponseDto
     {
         public int Id { get; set; }
-        public required string Nome { get; set; }
-        public Escola Escola { get; set; }= null!;
+        public required string Name { get; set; }
+        public School School { get; set; }= null!;
 
     }
 }

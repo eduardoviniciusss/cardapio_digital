@@ -7,11 +7,11 @@ using cardapio_digital.Enums;
 
 namespace cardapio_digital.Enums
 {
-    public enum PerfilUsuario
+    public enum UserRole
     {
-        Administrador=1,
-        Cantina=2,
-        Pais=3
+        Administrator=1,
+        Canteen=2,
+        Parent=3
 
     }
 }

@@ -6,13 +6,13 @@ using cardapio_digital.Enums;
 
 namespace cardapio_digital.Dtos
 {
-    public class EscolaRespostaDto
+    public class SchoolResponseDto
     {
         public int Id { get; set; }
-        public required string Nome { get; set; }
-        public required string Telefone { get; set; }
-        public required string Endereco { get; set; }
-        public List<Turno> Turnos { get; set; } = new();
+        public required string Name { get; set; }
+        public required string Phone { get; set; }
+        public required string Address { get; set; }
+        public List<Shift> Shifts { get; set; } = new();
 
 
 

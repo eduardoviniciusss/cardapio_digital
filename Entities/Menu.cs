@@ -5,11 +5,14 @@ using System.Threading.Tasks;
 
 namespace cardapio_digital.Entities
 {
-    public class Categoria
+    public class Menu
     {
         public int Id { get; set; }
-        public required string Nome { get; set; }
-        public int EscolaId { get; set; }
-        public Escola Escola { get; set; } = null!;
+
+        public required string Name { get; set; }
+
+        public int SchoolId { get; set; }
+
+        public School School { get; set; }= null!;
     }
 }
