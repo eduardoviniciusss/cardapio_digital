@@ -27,7 +27,8 @@ if (school == null)
   var menu = await db.Menus.Include(c => c.School).Where(c => c.SchoolId == school.Id).ToListAsync();
   var response = menu.Select(c => new MenuResponseDto { Id = c.Id, Name = c.Name, School = c.School }).ToList();
   return Results.Ok(response);
-});
+})
+.RequireAuthorization("Canteen");
 
 //GET ID CARDAPIO
 app.MapGet("/menus/{id}", async(int id, AppDbContext db,  HttpContext http) =>
@@ -48,11 +49,12 @@ app.MapGet("/menus/{id}", async(int id, AppDbContext db,  HttpContext http) =>
         }
   var response = new MenuResponseDto { Id = menu.Id, Name = menu.Name, School = menu.School };
   return Results.Ok(response);
-});
+})
+.RequireAuthorization("Canteen");
 
 //POST CARDAPIO
 app.MapPost("/menus", async (AppDbContext db, MenuDto dto, HttpContext http) =>
-{ 
+{
     var userId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
     var school = await db.Schools.FirstOrDefaultAsync(e => e.UserId == userId);
@@ -61,7 +63,7 @@ app.MapPost("/menus", async (AppDbContext db, MenuDto dto, HttpContext http) =>
     {
         return Results.NotFound("School not found.");
     }
-    
+
     if (string.IsNullOrWhiteSpace(dto.Name))
     {
         return Results.BadRequest("Name is required.");

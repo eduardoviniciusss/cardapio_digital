@@ -11,6 +11,7 @@ namespace cardapio_digital.Dtos
         public DateTime BirthDate { get; set; }
         public string Phone { get; set; } = string.Empty;
         public int SchoolId { get; set; }
-
+        public int ParentId { get; set; }
     }
+ 
 }

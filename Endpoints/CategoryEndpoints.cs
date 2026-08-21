@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using cardapio_digital.Entities;
 using cardapio_digital.Dtos;
 using System.Security.Claims;
+using cardapio_digital.Services;
 
 namespace cardapio_digital.Endpoints
 {
@@ -50,32 +51,12 @@ if (category is null)
 .RequireAuthorization("Canteen");
 
 //POST CATEGORIA
-app.MapPost("/categories", async (AppDbContext db, CategoryDto dto, HttpContext http) =>
+app.MapPost("/categories",
+async (CategoryDto dto,HttpContext http,CategoryService service) =>
 {
+    var userId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-var userId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-var school = await db.Schools
-.FirstOrDefaultAsync(e => e.UserId == userId);
-
-if(school == null)
-{
-    return Results.NotFound("School not found.");
-}
-
-if (string.IsNullOrWhiteSpace(dto.Name))
-{
-    return Results.BadRequest("Name is required.");
-}
-   
-var category = new Category
-{
-    Name = dto.Name,
-    SchoolId = school.Id
-};
-
-db.Categories.Add(category);
-await db.SaveChangesAsync();
-return Results.Created($"/categories/{category.Id}",category);
+    return await service.Register(dto, userId);
 })
 .RequireAuthorization("Canteen");
 
@@ -107,7 +88,7 @@ app.MapDelete("/categories/{id}", async (int id, AppDbContext db, HttpContext ht
 {
    var userId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
    var school = await db.Schools.FirstOrDefaultAsync(e => e.UserId == userId);
-   
+
    if(school == null)
  {
     return Results.NotFound();

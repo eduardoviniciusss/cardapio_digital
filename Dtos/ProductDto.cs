@@ -7,10 +7,10 @@ namespace cardapio_digital.Dtos
 {
     public class ProductDto
     {
-        public required string Name { get; set; }
-
+        public string Name { get; set; } = string.Empty;
         public decimal Price { get; set; }
-
         public int CategoryId { get; set; }
+        public int SchoolId { get; set; }
     }
+
 }

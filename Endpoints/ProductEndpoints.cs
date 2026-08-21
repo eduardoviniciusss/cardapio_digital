@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using cardapio_digital.Entities;
 using cardapio_digital.Dtos;
 using System.Security.Claims;
+using cardapio_digital.Services;
 
 namespace cardapio_digital.Endpoints
 {
@@ -66,52 +67,15 @@ app.MapGet("/products/{id}", async(int id, AppDbContext db, HttpContext http) =>
  .RequireAuthorization("Canteen");
 
 //POST PRODUTO
-app.MapPost("/products", async (AppDbContext db, ProductDto dto, HttpContext http) =>
- {
+app.MapPost("/products",
+async (
+ProductDto dto,HttpContext http,ProductService service) =>
+{
     var userId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-    var school = await db.Schools.FirstOrDefaultAsync(e => e.UserId == userId);
 
-     if (string.IsNullOrWhiteSpace(dto.Name))
-    {
-        return Results.BadRequest("Name is required.");
-    }
-    //verifica se a categoria existe
-    var categoryExists = await db.Categories.FindAsync(dto.CategoryId);
-    if (categoryExists is null)
-    {
-        return Results.BadRequest("Category not found.");
-    }
-    if (school == null)
-    {
-    return Results.NotFound("School not found.");
-    }
-    var product = new Product
-    {
-        Name = dto.Name,
-        Price = dto.Price,
-        CategoryId = dto.CategoryId,
-        SchoolId = school.Id
-    
-    };
-    db.Products.Add(product);
-    await db.SaveChangesAsync();
-    var productWithCategory = await db.Products
-        .Include(p => p.Category)
-        .FirstOrDefaultAsync(p => p.Id == product.Id);
-    if (productWithCategory is null)
-    {
-        return Results.BadRequest("Erro retrieving the created product.");
-    }
-    var response = new ProductResponseDto
-    {
-        Id = productWithCategory.Id,
-        Name = productWithCategory.Name,
-        Price = productWithCategory.Price,
-        Category = productWithCategory.Category
-    };
-    return Results.Created($"/products/{product.Id}", response);
- })
- .RequireAuthorization("Canteen");
+    return await service.Register(dto, userId);
+})
+.RequireAuthorization("Canteen");
 
 //PUT PRODUTO
 app.MapPut("/products/{id}", async (int id, AppDbContext db, ProductDto dto, HttpContext http) =>
