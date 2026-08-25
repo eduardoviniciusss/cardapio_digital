@@ -20,8 +20,6 @@ At this stage, the main focus is consolidating:
 * JWT authentication with role-based authorization
 * Parent and child registration
 
-* teste MR douglas
-
 ---
 
 ## ⚙️ Features
