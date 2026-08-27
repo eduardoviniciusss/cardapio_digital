@@ -1,0 +1,42 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  continuous-integration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet build --configuration Release
+      - run: |
+          dotnet test \
+            --no-build \
+            --configuration Release \
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=cobertura \
+            /p:CoverletOutput=./TestResults/Coverage/ \
+            /p:Threshold=80 \
+            /p:ThresholdType=line \
+            /p:ThresholdStat=total
+      - run: dotnet tool install -g dotnet-reportgenerator-globaltool
+      - run: |
+          reportgenerator \
+            -reports:**/coverage.cobertura.xml \
+            -targetdir:CoverageReport \
+            -reporttypes:Html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CoverageReport
+          path: CoverageReport
