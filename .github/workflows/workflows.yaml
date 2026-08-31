@@ -16,24 +16,38 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - run: dotnet build --configuration Release
-      - run: |
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run Tests
+        run: |
           dotnet test \
-            --no-build \
             --configuration Release \
-            /p:CollectCoverage=true \
-            /p:CoverletOutputFormat=cobertura \
-            /p:CoverletOutput=./TestResults/Coverage/ \
-            /p:ExcludeByFile="**/Program.cs;**/Migrations/*.cs;**/Endpoints/*.cs;**/Dtos/*.cs;**/Entities/*.cs;**/*.generated.cs;**/*.g.cs" \
+            --no-build \
             /p:Threshold=80 \
             /p:ThresholdType=line \
             /p:ThresholdStat=total
-      - run: dotnet tool install -g dotnet-reportgenerator-globaltool
-      - run: reportgenerator -reports:"**/coverage.cobertura.xml" -targetdir:CoverageReport -reporttypes:Html
-      - uses: actions/upload-artifact@v4
+
+      - name: Install ReportGenerator
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+      - name: Generate Coverage Report
+        run: |
+          reportgenerator \
+            "-reports:**/coverage.cobertura.xml" \
+            "-targetdir:CoverageReport" \
+            "-reporttypes:Html"
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
         with:
           name: CoverageReport
           path: CoverageReport

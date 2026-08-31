@@ -8,7 +8,7 @@
     <CollectCoverage>true</CollectCoverage>
     <CoverletOutputFormat>cobertura</CoverletOutputFormat>
     <CoverletOutput>./TestResults/coverage</CoverletOutput>
-    <ExcludeByFile>**/Program.cs,**/Migrations/*.cs,**/Endpoints/*.cs,**/Dtos/*.cs,**/Entities/*.cs,**/*.generated.cs,**/*.g.cs</ExcludeByFile>
+   <ExcludeByFile>**/Program.cs;**/Migrations/*.cs;**/Endpoints/*.cs;**/Dtos/*.cs;**/Entities/*.cs;**/*.generated.cs;**/*.g.cs</ExcludeByFile>
   </PropertyGroup>
 
   <ItemGroup>
