@@ -7,6 +7,8 @@ namespace cardapio_digital.Dtos
 {
     public class CategoryDto
     {
-        public required string Name { get; set; }
+        public string? Name { get; set; }
+        public int SchoolId { get; set; }
     }
+
 }

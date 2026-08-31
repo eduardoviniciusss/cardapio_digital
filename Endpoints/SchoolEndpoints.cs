@@ -7,6 +7,7 @@ using cardapio_digital.Entities;
 using cardapio_digital.Dtos;
 using cardapio_digital.Enums;
 using System.Security.Claims;
+using cardapio_digital.Services;
 
 namespace cardapio_digital.Endpoints
 {
@@ -43,41 +44,12 @@ return Results.Ok(school);
 .RequireAuthorization("Canteen");
 
 //POST ESCOLA
-app.MapPost("/schools", async (AppDbContext db, SchoolDto dto, HttpContext http) =>
+app.MapPost("/schools",
+async (SchoolDto dto,HttpContext http,SchoolService service)=>
 {
-    var userId = int.Parse(
-    http.User
-    .FindFirst(ClaimTypes.NameIdentifier)!
-    .Value
-);
-    if (new[] { dto.Name, dto.Address, dto.Phone }
-        .Any(campo => string.IsNullOrWhiteSpace(campo)))
-    {
-        return Results.BadRequest("All fields are required.");
-    }
-    if (dto.Shifts is null || !dto.Shifts.Any())
-    {
-        return Results.BadRequest("Provide at least one shift.");
-    }
-    var school = new School
-    {
-        Name = dto.Name!,
-        Address = dto.Address!,
-        Phone = dto.Phone!,
-        Shifts = dto.Shifts,
-        UserId = userId
-    };
-    db.Schools.Add(school);
-    await db.SaveChangesAsync();
-    var resposta = new SchoolResponseDto
-{
-    Id = school.Id,
-    Name = school.Name,
-    Address = school.Address,
-    Phone = school.Phone,
-    Shifts = school.Shifts
-};
-    return Results.Created($"/schools/{school.Id}", resposta);
+    var userId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+    return await service.Register(dto, userId);
 })
 .RequireAuthorization("Administrator");
 
