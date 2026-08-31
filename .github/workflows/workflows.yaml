@@ -29,15 +29,14 @@ jobs:
 
       - name: Run Tests
         run: |
-         dotnet test \
-         --configuration Release \
-         --no-build \
-         /p:CollectCoverage=true \
-         /p:CoverletOutputFormat=cobertura \
-         /p:Threshold=80 \
-         /p:ThresholdType=line \
-         /p:ThresholdStat=total
-       
+          dotnet test \
+            --configuration Release \
+            --no-build \
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=cobertura \
+            /p:Threshold=80 \
+            /p:ThresholdType=line \
+            /p:ThresholdStat=total
 
       - name: Install ReportGenerator
         run: dotnet tool install -g dotnet-reportgenerator-globaltool
@@ -50,7 +49,7 @@ jobs:
             "-reporttypes:Html"
 
       - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: CoverageReport
           path: CoverageReport
