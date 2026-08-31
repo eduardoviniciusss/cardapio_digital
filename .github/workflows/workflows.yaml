@@ -17,9 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
 
       - name: Restore
         run: dotnet restore
@@ -29,12 +29,15 @@ jobs:
 
       - name: Run Tests
         run: |
-          dotnet test \
-            --configuration Release \
-            --no-build \
-            /p:Threshold=80 \
-            /p:ThresholdType=line \
-            /p:ThresholdStat=total
+         dotnet test \
+         --configuration Release \
+         --no-build \
+         /p:CollectCoverage=true \
+         /p:CoverletOutputFormat=cobertura \
+         /p:Threshold=80 \
+         /p:ThresholdType=line \
+         /p:ThresholdStat=total
+       
 
       - name: Install ReportGenerator
         run: dotnet tool install -g dotnet-reportgenerator-globaltool

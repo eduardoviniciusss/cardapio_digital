@@ -2,3 +2,12 @@ bin/
 obj/
 appsettings.json
 appsettings.Development.json
+# Testes e cobertura
+CoverageReport/
+TestResults/
+**/CoverageReport/
+**/TestResults/
+
+# Arquivos de cobertura
+coverage.cobertura.xml
+*.coverage
