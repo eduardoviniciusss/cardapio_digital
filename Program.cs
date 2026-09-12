@@ -10,13 +10,27 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using cardapio_digital.Services;
+using Microsoft.OpenApi;
+
 
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme.",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT"
+    });
+
+});
 builder.Services.AddAuthorization(options =>
 {
   options.AddPolicy("Administrator", policy => policy.RequireRole("Administrator"));
@@ -93,7 +107,7 @@ app.UseAuthorization();
 
   app.UseSwagger();
   app.UseSwaggerUI();
-  
+
 
 app.UseHttpsRedirection();
 
