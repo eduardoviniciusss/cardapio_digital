@@ -30,6 +30,12 @@ builder.Services.AddSwaggerGen(options =>
         BearerFormat = "JWT"
     });
 
+    // Aplica o esquema Bearer em TODAS as operações — é isso que faz o Swagger
+    // realmente enviar o header 'Authorization: Bearer <token>' no curl gerado.
+    options.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Bearer")] = new List<string>()
+    });
 });
 builder.Services.AddAuthorization(options =>
 {
