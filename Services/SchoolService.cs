@@ -36,11 +36,6 @@ namespace cardapio_digital.Services
                 return Results.NotFound("User not found.");
             }
 
-            if (user.Role != cardapio_digital.Enums.UserRole.Canteen)
-            {
-                return Results.BadRequest("User must have Canteen role.");
-            }
-
             var school = new School
             {
                 Name = dto.Name!,

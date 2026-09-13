@@ -18,23 +18,22 @@ using Microsoft.OpenApi;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
+const string schemeId = "Bearer";
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.AddSecurityDefinition(schemeId, new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme.",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.Http,
-        Scheme = "Bearer",
+        Scheme = "bearer",
         BearerFormat = "JWT"
     });
 
-    // Aplica o esquema Bearer em TODAS as operações — é isso que faz o Swagger
-    // realmente enviar o header 'Authorization: Bearer <token>' no curl gerado.
-    options.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
-        [new OpenApiSecuritySchemeReference("Bearer")] = new List<string>()
+        [new OpenApiSecuritySchemeReference(schemeId, document)] = new List<string>()
     });
 });
 builder.Services.AddAuthorization(options =>
