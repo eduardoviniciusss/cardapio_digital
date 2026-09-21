@@ -45,6 +45,17 @@ builder.Services.AddAuthorization(options =>
   options.AddPolicy("Parent", policy => policy.RequireRole("Parent", "Administrator"));
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
   // Permite que a API entenda Enums como texto (ex: "Morning") no JSON
@@ -101,6 +112,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 
 //Ativar os Middlewares
 var app = builder.Build();
+
+app.UseCors("Frontend");
 
 //Indetificar quem é usuário
 app.UseAuthentication();
