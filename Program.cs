@@ -50,7 +50,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Frontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173")
+            .WithOrigins(
+              "https://cardapio-digital-frontend-nine.vercel.app",
+              "http://localhost:5173")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
