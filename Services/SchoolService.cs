@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using cardapio_digital.Dtos;
 using cardapio_digital.Entities;
+using cardapio_digital.Enums;
 
 namespace cardapio_digital.Services
 {
@@ -30,11 +31,29 @@ namespace cardapio_digital.Services
                 return Results.BadRequest("Provide at least one shift.");
             }
 
-            var user = await _db.User.FirstOrDefaultAsync(u => u.Id == userId);
-            if (user == null)
+             if (dto.CanteenUserId <= 0)
             {
-                return Results.NotFound("User not found.");
+            return Results.BadRequest("Provide the Canteen user who owns this school (CanteenUserId).");
             }
+            var canteenUser = await _db.User.FirstOrDefaultAsync(u => u.Id == dto.CanteenUserId);
+
+            if (canteenUser == null)
+            {
+            return Results.BadRequest("The Cantina user provided does not exist.");
+            }
+
+            if (canteenUser.Role != UserRole.Canteen)
+            {
+            return Results.BadRequest("The user provided doesn't have the Canteen role.");
+            }  
+
+           var alreadyHasSchool = await _db.Schools.AnyAsync(s => s.UserId == dto.CanteenUserId);
+
+           if (alreadyHasSchool)
+            {
+            return Results.BadRequest("This Cantina user already has a school linked.");
+            }
+            
 
             var school = new School
             {
@@ -42,7 +61,7 @@ namespace cardapio_digital.Services
                 Address = dto.Address!,
                 Phone = dto.Phone!,
                 Shifts = dto.Shifts,
-                UserId = userId
+                UserId = dto.CanteenUserId
             };
 
             _db.Schools.Add(school);
@@ -54,7 +73,10 @@ namespace cardapio_digital.Services
                 Name = school.Name,
                 Address = school.Address,
                 Phone = school.Phone,
-                Shifts = school.Shifts
+                Shifts = school.Shifts,
+                CanteenUserId = canteenUser.Id,
+                CanteenName = canteenUser.Name
+
             };
 
             return Results.Created($"/schools/{school.Id}", resposta);

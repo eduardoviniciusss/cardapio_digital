@@ -13,8 +13,8 @@ namespace cardapio_digital.Dtos
         public required string Phone { get; set; }
         public required string Address { get; set; }
         public List<Shift> Shifts { get; set; } = new();
-
-
+        public int CanteenUserId { get; set; }
+        public string? CanteenName { get; set; } 
 
     }
 }
