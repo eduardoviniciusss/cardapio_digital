@@ -28,7 +28,7 @@ app.MapGet("/schools", async (AppDbContext db,HttpContext http) =>
 }
 return Results.Ok(school);
     
-}).RequireAuthorization("Administrator","Canteen");
+}).RequireAuthorization("Canteen");
 
 //GET TODAS AS ESCOLAS - só Administrator
 app.MapGet("/schools/all", async (AppDbContext db) =>
@@ -82,7 +82,7 @@ app.MapGet("/schools/{id}", async (int id, AppDbContext db, HttpContext http) =>
 }
 return Results.Ok(school);
 })
-.RequireAuthorization("Administrator", "Canteen");
+.RequireAuthorization("Canteen");
 
 //POST ESCOLA
 app.MapPost("/schools",
