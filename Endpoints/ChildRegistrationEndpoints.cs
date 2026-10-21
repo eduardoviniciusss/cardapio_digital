@@ -77,6 +77,52 @@ app.MapGet("/children", async (HttpContext http, AppDbContext db) =>
 return Results.Ok(children);
 })
 .RequireAuthorization("Parent");
+
+app.MapGet("/children/{childId}/menus", async (
+    int childId,
+    AppDbContext db,
+    HttpContext http) =>
+{
+    var userId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+    var parent = await db.Parents
+        .FirstOrDefaultAsync(p => p.UserId == userId);
+
+    if (parent == null)
+        return Results.NotFound("Parent not found.");
+
+    var child = await db.Children
+        .FirstOrDefaultAsync(c =>
+            c.Id == childId &&
+            c.ParentId == parent.Id);
+
+    if (child == null)
+        return Results.NotFound("Child not found.");
+
+    var menus = await db.Menus
+        .Where(m => m.SchoolId == child.SchoolId)
+        .Include(m => m.MenuProducts)
+            .ThenInclude(mp => mp.Product)
+                .ThenInclude(p => p.Category)
+        .Select(m => new ChildMenuDto
+        {
+            Id = m.Id,
+            Name = m.Name,
+            Products = m.MenuProducts
+                .Select(mp => new ChildMenuProductDto
+                {
+                    Id = mp.Product.Id,
+                    Name = mp.Product.Name,
+                    Price = mp.Product.Price,
+                    Category = mp.Product.Category.Name
+                })
+                .ToList()
+        })
+        .ToListAsync();
+
+    return Results.Ok(menus);
+})
+.RequireAuthorization("Parent");
   
         }  
     }

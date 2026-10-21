@@ -138,6 +138,90 @@ namespace cardapio_digital.Migrations
                     b.ToTable("menu_products", (string)null);
                 });
 
+            modelBuilder.Entity("cardapio_digital.Entities.Order", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ChildId")
+                        .HasColumnType("integer")
+                        .HasColumnName("child_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<int>("MenuId")
+                        .HasColumnType("integer")
+                        .HasColumnName("menu_id");
+
+                    b.Property<string>("MenuName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("menu_name");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("numeric")
+                        .HasColumnName("total");
+
+                    b.HasKey("Id")
+                        .HasName("pk_orders");
+
+                    b.HasIndex("ChildId", "MenuId", "Date")
+                        .IsUnique()
+                        .HasDatabaseName("ix_orders_child_id_menu_id_date");
+
+                    b.ToTable("orders", (string)null);
+                });
+
+            modelBuilder.Entity("cardapio_digital.Entities.OrderItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CategoryName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("category_name");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_id");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer")
+                        .HasColumnName("product_id");
+
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("product_name");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("numeric")
+                        .HasColumnName("unit_price");
+
+                    b.HasKey("Id")
+                        .HasName("pk_order_items");
+
+                    b.HasIndex("OrderId")
+                        .HasDatabaseName("ix_order_items_order_id");
+
+                    b.ToTable("order_items", (string)null);
+                });
+
             modelBuilder.Entity("cardapio_digital.Entities.Parent", b =>
                 {
                     b.Property<int>("Id")
@@ -347,7 +431,7 @@ namespace cardapio_digital.Migrations
             modelBuilder.Entity("cardapio_digital.Entities.MenuProduct", b =>
                 {
                     b.HasOne("cardapio_digital.Entities.Menu", "Menu")
-                        .WithMany()
+                        .WithMany("MenuProducts")
                         .HasForeignKey("MenuId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -363,6 +447,30 @@ namespace cardapio_digital.Migrations
                     b.Navigation("Menu");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("cardapio_digital.Entities.Order", b =>
+                {
+                    b.HasOne("cardapio_digital.Entities.Child", "Child")
+                        .WithMany()
+                        .HasForeignKey("ChildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_orders_children_child_id");
+
+                    b.Navigation("Child");
+                });
+
+            modelBuilder.Entity("cardapio_digital.Entities.OrderItem", b =>
+                {
+                    b.HasOne("cardapio_digital.Entities.Order", "Order")
+                        .WithMany("Items")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_order_items_orders_order_id");
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("cardapio_digital.Entities.Parent", b =>
@@ -408,6 +516,16 @@ namespace cardapio_digital.Migrations
                         .HasConstraintName("fk_schools_user_user_id");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("cardapio_digital.Entities.Menu", b =>
+                {
+                    b.Navigation("MenuProducts");
+                });
+
+            modelBuilder.Entity("cardapio_digital.Entities.Order", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("cardapio_digital.Entities.Parent", b =>

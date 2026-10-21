@@ -27,8 +27,13 @@ namespace cardapio_digital
 
        public DbSet<Child> Children => Set<Child>();
 
+       public DbSet<Order> Orders => Set<Order>();
+       public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+
        public AppDbContext(DbContextOptions<AppDbContext>options):
        base(options){}
+
+       
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -101,6 +106,26 @@ namespace cardapio_digital
              modelBuilder.Entity<Child>()
              .Property(f => f.BirthDate)
              .HasColumnType("date");
+
+             modelBuilder.Entity<Order>()
+            .HasOne(o => o.Child)
+            .WithMany()
+            .HasForeignKey(o => o.ChildId)
+            .IsRequired();
+
+            modelBuilder.Entity<OrderItem>()
+            .HasOne(i => i.Order)
+            .WithMany(o => o.Items)
+            .HasForeignKey(i => i.OrderId)
+            .IsRequired();
+
+            modelBuilder.Entity<Order>()
+           .Property(o => o.Date)
+           .HasColumnType("date");
+
+           modelBuilder.Entity<Order>()
+           .HasIndex(o => new { o.ChildId, o.MenuId, o.Date })
+           .IsUnique();
 
             
         }

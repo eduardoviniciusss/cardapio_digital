@@ -14,5 +14,7 @@ namespace cardapio_digital.Entities
         public int SchoolId { get; set; }
 
         public School School { get; set; }= null!;
+
+        public List<MenuProduct> MenuProducts { get; set; } = [];
     }
 }

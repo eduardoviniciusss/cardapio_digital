@@ -62,6 +62,19 @@ Complete CRUD for products:
 * Registration of children linked to parents and schools
 * Retrieval of children registered by a parent/guardian
 
+### 🧾 Orders (snack scheduling)
+
+* A parent schedules a snack for one of their children on a given date, choosing products from a school menu
+* The order keeps the product names and prices from the moment it was made, so history does not change if the canteen edits the menu later
+* Listing of the logged parent's orders, optionally filtered by child
+
+| Method | Route | Role | Description |
+|---|---|---|---|
+| POST | `/orders` | Parent | Schedules a snack. Body: `{ "childId", "menuId", "date", "productIds": [] }` |
+| GET | `/orders` or `/orders?childId=1` | Parent | Lists the logged parent's orders |
+
+Validation rules for `POST /orders`: the child must belong to the logged parent; the menu must belong to the child's school; every product must be in that menu; the date cannot be in the past; and a child cannot have two orders for the same menu on the same date (`409 Conflict`).
+
 ---
 
 ## 🔐 Roles and Access Control
@@ -70,7 +83,7 @@ The API already includes role-based authorization policies:
 
 * **Administrator** → full access to system administration
 * **Canteen** → management of menus, products, and categories
-* **Parent** → registration and retrieval of children
+* **Parent** → registration and retrieval of children, and scheduling snacks (orders)
 
 ### Implemented Features
 
@@ -102,6 +115,8 @@ SCHOOL
 
 PARENT
    └── CHILD
+          └── ORDER
+                 └── ORDER_ITEM
 ```
 
 ### 📌 Modeling Rules

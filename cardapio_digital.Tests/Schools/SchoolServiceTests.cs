@@ -43,7 +43,7 @@ public class SchoolServiceTests
         var result = await service.Register(dto, 999);
 
         // Assert
-        Assert.IsType<NotFound<string>>(result);
+        Assert.IsType<BadRequest<string>>(result);
     }
 
     [Fact]

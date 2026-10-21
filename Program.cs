@@ -77,6 +77,7 @@ builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<ParentService>();
 builder.Services.AddScoped<MenuService>();
 builder.Services.AddScoped<ChildService>();
+builder.Services.AddScoped<OrderService>();
 
 //Configurações do JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
@@ -115,6 +116,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 //Ativar os Middlewares
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+  var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+  db.Database.Migrate();
+}
+
+app.UseCors("Frontend");
+
 app.UseCors("Frontend");
 
 //Indetificar quem é usuário
@@ -150,5 +159,6 @@ app.MapMenuProductEndpoints();
 app.MapLoginUserEndpoints();
 app.MapParentRegistrationEndpoints();
 app.MapChildRegistrationEndpoints();
+app.MapOrderEndpoints();
 
 app.Run();

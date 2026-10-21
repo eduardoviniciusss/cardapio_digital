@@ -24,9 +24,16 @@ if (school == null)
 {
     return Results.NotFound("School not found.");
 }
-  var menu = await db.Menus.Include(c => c.School).Where(c => c.SchoolId == school.Id).ToListAsync();
-  var response = menu.Select(c => new MenuResponseDto { Id = c.Id, Name = c.Name, School = c.School }).ToList();
-  return Results.Ok(response);
+var menu = await db.Menus.Include(c => c.School).Where(c => c.SchoolId == school.Id).ToListAsync();
+var response = menu.Select(c => new MenuResponseDto 
+{ 
+    Id = c.Id, 
+    Name = c.Name,
+    SchoolId = c.SchoolId,
+    SchoolName = c.School.Name  
+}
+).ToList();
+return Results.Ok(response);
 })
 .RequireAuthorization("Canteen");
 
@@ -47,7 +54,13 @@ app.MapGet("/menus/{id}", async(int id, AppDbContext db,  HttpContext http) =>
         {
                 return Results.NotFound("Menu not found.");
         }
-  var response = new MenuResponseDto { Id = menu.Id, Name = menu.Name, School = menu.School };
+  var response = new MenuResponseDto 
+  { 
+    Id = menu.Id, 
+    Name = menu.Name, 
+    SchoolId = menu.SchoolId,
+    SchoolName = menu.School.Name
+  };
   return Results.Ok(response);
 })
 .RequireAuthorization("Canteen");
@@ -87,7 +100,8 @@ app.MapPost("/menus", async (AppDbContext db, MenuDto dto, HttpContext http) =>
     {
         Id = menuWithSchool.Id,
         Name = menuWithSchool.Name,
-        School = menuWithSchool.School
+        SchoolId = menuWithSchool.SchoolId,
+        SchoolName = menuWithSchool.School.Name
     };
     return Results.Created($"/menus/{menu.Id}", response);
 })
@@ -124,7 +138,13 @@ app.MapPut("/menus/{id}", async (int id, AppDbContext db, MenuDto dto, HttpConte
     {
         return Results.BadRequest("Error retrieving updated menu.");
     }
-    var response = new MenuResponseDto { Id = updatedMenu.Id, Name = updatedMenu.Name, School = updatedMenu.School };
+    var response = new MenuResponseDto 
+    { 
+        Id = updatedMenu.Id, 
+        Name = updatedMenu.Name, 
+        SchoolId = updatedMenu.SchoolId,
+        SchoolName = updatedMenu.School.Name
+    };
     return Results.Ok(response);
 })
 .RequireAuthorization("Canteen");
@@ -156,7 +176,13 @@ var menu = await db.Menus.FirstOrDefaultAsync(c => c.Id == id && c.SchoolId == s
     {
         return Results.BadRequest("Error retrieving updated menu.");
     }
-    var response = new MenuResponseDto { Id = updatedMenu.Id, Name = updatedMenu.Name, School = updatedMenu.School };
+    var response = new MenuResponseDto 
+    { 
+        Id = updatedMenu.Id, 
+        Name = updatedMenu.Name, 
+        SchoolId = updatedMenu.SchoolId,
+        SchoolName = updatedMenu.School.Name
+    };
     return Results.Ok(response);
 })
 .RequireAuthorization("Canteen");

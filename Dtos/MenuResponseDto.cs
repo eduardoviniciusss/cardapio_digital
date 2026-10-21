@@ -10,7 +10,8 @@ namespace cardapio_digital.Dtos
     {
         public int Id { get; set; }
         public required string Name { get; set; }
-        public School School { get; set; }= null!;
+        public int SchoolId { get; set; }
+        public required string SchoolName { get; set; }
 
     }
 }

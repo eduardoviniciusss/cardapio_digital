@@ -31,7 +31,8 @@ if (school == null)
         Id = p.Id,
         Name = p.Name,
         Price = p.Price,
-        Category = p.Category
+        CategoryId = p.CategoryId,
+        CategoryName = p.Category.Name
     }).ToList();
     return Results.Ok(response);
 })
@@ -60,7 +61,8 @@ app.MapGet("/products/{id}", async(int id, AppDbContext db, HttpContext http) =>
         Id = product.Id,
         Name = product.Name,
         Price = product.Price,
-        Category = product.Category
+        CategoryId = product.CategoryId,
+        CategoryName = product.Category.Name
     };
     return Results.Ok(response);
  })
@@ -127,7 +129,8 @@ var product = await db.Products.FirstOrDefaultAsync(p => p.Id == id && p.SchoolI
         Id = productWithCategory.Id,
         Name = productWithCategory.Name,
         Price = productWithCategory.Price,
-        Category = productWithCategory.Category
+        CategoryId = productWithCategory.CategoryId,
+        CategoryName = productWithCategory.Category.Name
     };
     return Results.Ok(response);
 })
@@ -182,7 +185,8 @@ var product = await db.Products.FirstOrDefaultAsync(p => p.Id == id && p.SchoolI
         Id = productWithCategory.Id,
         Name = productWithCategory.Name,
         Price = productWithCategory.Price,
-        Category = productWithCategory.Category
+        CategoryId = productWithCategory.CategoryId,
+        CategoryName = productWithCategory.Category.Name
     };
     return Results.Ok(response);
 })

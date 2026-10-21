@@ -34,7 +34,8 @@ namespace cardapio_digital.Services
     {
         Id = c.Id,
         Name = c.Name,
-        School = c.School
+        SchoolId = c.SchoolId,
+        SchoolName = c.School.Name
     }).ToList();
 
         return Results.Ok(response);
@@ -75,7 +76,8 @@ namespace cardapio_digital.Services
         {
             Id = menuWithSchool.Id,
             Name = menuWithSchool.Name,
-            School = menuWithSchool.School
+            SchoolId = menuWithSchool.SchoolId,
+            SchoolName = menuWithSchool.School.Name
         };
 
         return Results.Created($"/menus/{menu.Id}", response);

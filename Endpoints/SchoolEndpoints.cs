@@ -84,6 +84,22 @@ return Results.Ok(school);
 })
 .RequireAuthorization("Canteen");
 
+// GET OPÇÕES DE ESCOLAS - usado pelo cadastro do Responsável/Filho
+app.MapGet("/schools/options", async (AppDbContext db) =>
+{
+    var schools = await db.Schools
+        .OrderBy(s => s.Name)
+        .Select(s => new SchoolOptionDto
+        {
+            Id = s.Id,
+            Name = s.Name
+        })
+        .ToListAsync();
+
+    return Results.Ok(schools);
+})
+.RequireAuthorization("Parent");
+
 //POST ESCOLA
 app.MapPost("/schools",
 async (SchoolDto dto,HttpContext http,SchoolService service)=>
