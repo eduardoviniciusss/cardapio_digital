@@ -26,8 +26,26 @@ async (ParentRegistrationDto dto,HttpContext http,ParentService service) =>
 
     return await service.Register(dto, int.Parse(userId));
 })
-  .RequireAuthorization("Parent");      
+  .RequireAuthorization("Parent");
+
+app.MapGet("/parents/users", async (AppDbContext db) =>
+{
+    var parents = await db.User
+        .Where(u => u.Role == UserRole.Parent)
+        .OrderBy(u => u.Name)
+        .Select(u => new ParentUserResponseDto
+        {
+            UserId = u.Id,
+            Name = u.Name,
+            Email = u.Email,
+            HasRegistration = db.Parents.Any(p => p.UserId == u.Id)
+        })
+        .ToListAsync();
+
+    return Results.Ok(parents);
+})
+.RequireAuthorization("Administrator");
 }
-        
+
 }
 }

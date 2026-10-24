@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using cardapio_digital.Services;
 using Microsoft.OpenApi;
+using cardapio_digital.Middleware;
 
 
 
@@ -128,6 +129,8 @@ app.UseCors("Frontend");
 
 //Indetificar quem é usuário
 app.UseAuthentication();
+
+app.UseMiddleware<ActAsMiddleware>();
 
 //Verificar se o usuário pode acessar o endpoint
 app.UseAuthorization();
