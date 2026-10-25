@@ -125,6 +125,61 @@ public class OrderService
         return Results.Ok(orders.Select(ToResponse).ToList());
     }
 
+    // Cancela (exclui) um agendamento do responsável logado.
+    // Só é possível cancelar agendamentos de hoje em diante.
+    public async Task<IResult> Cancel(int orderId, int userId)
+    {
+        var parent = await _db.Parents.FirstOrDefaultAsync(p => p.UserId == userId);
+
+        if (parent == null)
+            return Results.UnprocessableEntity("Parent not found.");
+
+        // Só encontra pedidos de filhos do próprio responsável
+        var order = await _db.Orders
+            .Include(o => o.Items)
+            .FirstOrDefaultAsync(o => o.Id == orderId && o.Child.ParentId == parent.Id);
+
+        if (order == null)
+            return Results.NotFound("Order not found.");
+
+        // Mesma tolerância de fuso (UTC-3) usada ao criar o pedido
+        if (order.Date.Date < DateTime.UtcNow.Date.AddDays(-1))
+            return Results.BadRequest("Past orders cannot be cancelled.");
+
+        _db.Orders.Remove(order);
+        await _db.SaveChangesAsync();
+
+        return Results.NoContent();
+    }
+
+    // Lista os agendamentos dos alunos da escola da Cantina logada,
+    // opcionalmente de um único dia.
+    public async Task<IResult> GetForSchool(int userId, DateTime? date)
+    {
+        var school = await _db.Schools.FirstOrDefaultAsync(s => s.UserId == userId);
+
+        if (school == null)
+            return Results.NotFound("School not found.");
+
+        var query = _db.Orders
+            .Include(o => o.Child)
+            .Include(o => o.Items)
+            .Where(o => o.Child.SchoolId == school.Id);
+
+        if (date.HasValue)
+        {
+            var day = date.Value.Date;
+            query = query.Where(o => o.Date == day);
+        }
+
+        var orders = await query
+            .OrderByDescending(o => o.Date)
+            .ThenBy(o => o.Child.Name)
+            .ToListAsync();
+
+        return Results.Ok(orders.Select(ToResponse).ToList());
+    }
+
     private static OrderResponseDto ToResponse(Order o) => new()
     {
         Id = o.Id,

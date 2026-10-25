@@ -334,4 +334,176 @@ public class OrderServiceTests
         // Assert
         Assert.IsType<NotFound<string>>(result);
     }
+
+    [Fact]
+    public async Task ShouldCancelOwnOrder()
+    {
+        // Arrange
+        var context = CreateContext();
+        await SeedAsync(context);
+        var service = new OrderService(context);
+
+        var created = Assert.IsType<Created<OrderResponseDto>>(await service.Create(ValidDto(), 1));
+
+        // Act
+        var result = await service.Cancel(created.Value!.Id, 1);
+
+        // Assert
+        Assert.IsType<NoContent>(result);
+        Assert.Equal(0, await context.Orders.CountAsync());
+        Assert.Equal(0, await context.OrderItems.CountAsync());
+    }
+
+    [Fact]
+    public async Task ShouldReturnNotFoundWhenCancellingUnknownOrder()
+    {
+        // Arrange
+        var context = CreateContext();
+        await SeedAsync(context);
+        var service = new OrderService(context);
+
+        // Act
+        var result = await service.Cancel(999, 1);
+
+        // Assert
+        Assert.IsType<NotFound<string>>(result);
+    }
+
+    [Fact]
+    public async Task ShouldNotCancelOrderFromAnotherParent()
+    {
+        // Arrange
+        var context = CreateContext();
+        await SeedAsync(context);
+
+        context.User.Add(new User
+        {
+            Id = 3,
+            Name = "Outro",
+            Email = "outro@gmail.com",
+            PasswordHash = "123456",
+            Role = UserRole.Parent
+        });
+        context.Parents.Add(new Parent
+        {
+            Id = 2,
+            Name = "Outro",
+            Cpf = "98765432100",
+            Phone = "81900000000",
+            UserId = 3
+        });
+        await context.SaveChangesAsync();
+
+        var service = new OrderService(context);
+        var created = Assert.IsType<Created<OrderResponseDto>>(await service.Create(ValidDto(), 1));
+
+        // Act (o pedido é do responsável 1; o usuário 3 tenta cancelar)
+        var result = await service.Cancel(created.Value!.Id, 3);
+
+        // Assert
+        Assert.IsType<NotFound<string>>(result);
+        Assert.Equal(1, await context.Orders.CountAsync());
+    }
+
+    [Fact]
+    public async Task ShouldNotCancelPastOrder()
+    {
+        // Arrange
+        var context = CreateContext();
+        await SeedAsync(context);
+
+        context.Orders.Add(new Order
+        {
+            Id = 10,
+            ChildId = 1,
+            MenuId = 1,
+            MenuName = "Cardápio Noite",
+            Date = DateTime.UtcNow.Date.AddDays(-5),
+            Total = 8.5m,
+            CreatedAt = DateTime.UtcNow.AddDays(-6)
+        });
+        await context.SaveChangesAsync();
+
+        var service = new OrderService(context);
+
+        // Act
+        var result = await service.Cancel(10, 1);
+
+        // Assert
+        Assert.IsType<BadRequest<string>>(result);
+        Assert.Equal(1, await context.Orders.CountAsync());
+    }
+
+    [Fact]
+    public async Task CanteenShouldListOnlyOrdersFromItsOwnSchool()
+    {
+        // Arrange
+        var context = CreateContext();
+        await SeedAsync(context);
+
+        // Segunda escola, com cantina própria (relação 1:1 usuário-escola)
+        context.User.Add(new User
+        {
+            Id = 4,
+            Name = "Outra Cantina",
+            Email = "outracantina@gmail.com",
+            PasswordHash = "123456",
+            Role = UserRole.Canteen
+        });
+        context.Schools.Add(new School
+        {
+            Id = 2,
+            Name = "Outra Escola",
+            Address = "Rua B, 20",
+            Phone = "8144445555",
+            Shifts = new List<Shift> { Shift.Morning },
+            UserId = 4
+        });
+        await context.SaveChangesAsync();
+
+        var service = new OrderService(context);
+        await service.Create(ValidDto(), 1);
+
+        // Act
+        var mine = await service.GetForSchool(2, null);
+        var other = await service.GetForSchool(4, null);
+
+        // Assert
+        Assert.Single(Assert.IsType<Ok<List<OrderResponseDto>>>(mine).Value!);
+        Assert.Empty(Assert.IsType<Ok<List<OrderResponseDto>>>(other).Value!);
+    }
+
+    [Fact]
+    public async Task CanteenShouldFilterOrdersByDate()
+    {
+        // Arrange
+        var context = CreateContext();
+        await SeedAsync(context);
+        var service = new OrderService(context);
+
+        var dto = ValidDto();
+        await service.Create(dto, 1);
+
+        // Act
+        var sameDay = await service.GetForSchool(2, dto.Date);
+        var otherDay = await service.GetForSchool(2, dto.Date.AddDays(3));
+
+        // Assert
+        Assert.Single(Assert.IsType<Ok<List<OrderResponseDto>>>(sameDay).Value!);
+        Assert.Empty(Assert.IsType<Ok<List<OrderResponseDto>>>(otherDay).Value!);
+    }
+
+    [Fact]
+    public async Task ShouldReturnNotFoundWhenUserHasNoSchool()
+    {
+        // Arrange
+        var context = CreateContext();
+        var service = new OrderService(context);
+
+        // Act
+        var result = await service.GetForSchool(999, null);
+
+        // Assert
+        Assert.IsType<NotFound<string>>(result);
+    }
 }

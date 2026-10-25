@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using cardapio_digital.Entities;
 using cardapio_digital.Dtos;
@@ -10,193 +11,188 @@ namespace cardapio_digital.Endpoints
 {
 public static class MenuProductEndpoints
 {
+
+private static async Task<School?> GetMySchoolAsync(AppDbContext db, HttpContext http)
+{
+    var userId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+    return await db.Schools.FirstOrDefaultAsync(e => e.UserId == userId);
+}
+
+private static MenuProductResponseDto ToResponse(MenuProduct cp) => new()
+{
+    MenuId = cp.MenuId,
+    Menu = cp.Menu.Name,
+    ProductId = cp.ProductId,
+    Product = cp.Product.Name,
+    Category = cp.Product.Category?.Name ?? "No Category"
+};
+
 public static void MapMenuProductEndpoints(this WebApplication app)
 {
-// GET CARDAPIO_PRODUTO
-app.MapGet("/menu-products", async (AppDbContext db) =>
+// GET 
+app.MapGet("/menu-products", async (AppDbContext db, HttpContext http) =>
 {
-    var menuProducts = await db.MenuProducts
-    .Include(cp => cp.Menu).ThenInclude(c => c.School)
-    .Include(cp => cp.Product).ThenInclude(p => p.Category)
-    .ToListAsync();
-var response = menuProducts.Select(cardapioProduto => new MenuProductResponseDto
- {
-   MenuId = cardapioProduto.MenuId,
-   Menu = cardapioProduto.Menu.Name,
-   ProductId = cardapioProduto.ProductId,
-   Product = cardapioProduto.Product.Name,
-   Category = cardapioProduto.Product.Category.Name
-});
-return Results.Ok(response);
-});
+    var school = await GetMySchoolAsync(db, http);
+    if (school == null)
+        return Results.NotFound("School not found.");
 
-// GET ID CARDAPIO_PRODUTO
-app.MapGet("/menu-products/{menuId}/{productId}",async (int menuId, int productId, AppDbContext db) =>
-{
     var menuProducts = await db.MenuProducts
-    .Include(cp => cp.Menu).ThenInclude(c => c.School)
-    .Include(cp => cp.Product).ThenInclude(p => p.Category)
-    .FirstOrDefaultAsync(cp => cp.MenuId == menuId && cp.ProductId == productId);
-    if (menuProducts is null)
-    {
+        .Include(cp => cp.Menu)
+        .Include(cp => cp.Product).ThenInclude(p => p.Category)
+        .Where(cp => cp.Menu.SchoolId == school.Id)
+        .ToListAsync();
+
+    return Results.Ok(menuProducts.Select(ToResponse));
+})
+.RequireAuthorization("Canteen");
+
+// GET ID 
+app.MapGet("/menu-products/{menuId}/{productId}", async (int menuId, int productId, AppDbContext db, HttpContext http) =>
+{
+    var school = await GetMySchoolAsync(db, http);
+    if (school == null)
+        return Results.NotFound("School not found.");
+
+    var menuProduct = await db.MenuProducts
+        .Include(cp => cp.Menu)
+        .Include(cp => cp.Product).ThenInclude(p => p.Category)
+        .FirstOrDefaultAsync(cp => cp.MenuId == menuId && cp.ProductId == productId && cp.Menu.SchoolId == school.Id);
+
+    if (menuProduct is null)
         return Results.NotFound("Link not found.");
-    }
-    var response = new MenuProductResponseDto
-    {
-        MenuId = menuProducts.MenuId,
-        Menu = menuProducts.Menu.Name,
 
-        ProductId = menuProducts.ProductId,
-        Product = menuProducts.Product.Name,
+    return Results.Ok(ToResponse(menuProduct));
+})
+.RequireAuthorization("Canteen");
 
-        Category = menuProducts.Product.Category.Name
-    };
-
-    return Results.Ok(response);
-});
-
-// POST CARDAPIO_PRODUTO
-app.MapPost("/menu-products",async (AppDbContext db, MenuProductDto dto) =>
+// POST
+app.MapPost("/menu-products", async (AppDbContext db, HttpContext http, MenuProductDto dto) =>
 {
-    var menuExists = await db.Menus.FindAsync(dto.MenuId);
-    if (menuExists is null)
-    {
+    var school = await GetMySchoolAsync(db, http);
+    if (school == null)
+        return Results.NotFound("School not found.");
+
+    var menu = await db.Menus.FirstOrDefaultAsync(m => m.Id == dto.MenuId && m.SchoolId == school.Id);
+    if (menu is null)
         return Results.BadRequest("Menu not found.");
-    }
-    var productExists = await db.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == dto.ProductId);
-    if (productExists is null)
-    {
+
+    var product = await db.Products.Include(p => p.Category)
+        .FirstOrDefaultAsync(p => p.Id == dto.ProductId && p.SchoolId == school.Id);
+    if (product is null)
         return Results.BadRequest("Product not found.");
-    }
-    var thereIsAConnection = await db.MenuProducts.AnyAsync
-    (cp => cp.MenuId == dto.MenuId && cp.ProductId == dto.ProductId);
-    if (thereIsAConnection)
-    {
+
+    var alreadyLinked = await db.MenuProducts.AnyAsync(cp => cp.MenuId == dto.MenuId && cp.ProductId == dto.ProductId);
+    if (alreadyLinked)
         return Results.BadRequest("This product is already in the menu.");
-    }
+
     var menuProduct = new MenuProduct
     {
-        MenuId = dto.MenuId,
-        ProductId = dto.ProductId
+        MenuId = menu.Id,
+        ProductId = product.Id
     };
-    db.MenuProducts.Add(menuProduct); 
+    db.MenuProducts.Add(menuProduct);
     await db.SaveChangesAsync();
-     var response = new MenuProductResponseDto
+
+    var response = new MenuProductResponseDto
     {
         MenuId = menuProduct.MenuId,
-        Menu = menuExists.Name,
-
+        Menu = menu.Name,
         ProductId = menuProduct.ProductId,
-        Product = productExists.Name,
-
-        Category = productExists.Category?.Name ?? "No Category"
+        Product = product.Name,
+        Category = product.Category?.Name ?? "No Category"
     };
 
     return Results.Created($"/menu-products/{dto.MenuId}/{dto.ProductId}", response);
-});
+})
+.RequireAuthorization("Canteen");
 
-// PUT CARDAPIO_PRODUTO
-app.MapPut("/menu-products/{menuId}/{productId}", async (int menuId,int productId,AppDbContext db,MenuProductDto dto) =>
+// PUT 
+app.MapPut("/menu-products/{menuId}/{productId}", async (int menuId, int productId, AppDbContext db, HttpContext http, MenuProductDto dto) =>
 {
-    var menuProduct = await db.MenuProducts.FirstOrDefaultAsync(cp => cp.MenuId == menuId && 
-    cp.ProductId == productId);
+    var school = await GetMySchoolAsync(db, http);
+    if (school == null)
+        return Results.NotFound("School not found.");
+
+    var menuProduct = await db.MenuProducts
+        .FirstOrDefaultAsync(cp => cp.MenuId == menuId && cp.ProductId == productId && cp.Menu.SchoolId == school.Id);
     if (menuProduct is null)
-    {
-         return Results.NotFound("Link not found.");
-    }
-    var menuExists = await db.Menus.FindAsync(dto.MenuId);
-    if (menuExists is null)
-    {
-        return Results.BadRequest("Menu not found.");
-    }
-    var productExists = await db.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == dto.ProductId);
-    if (productExists is null)
-    {
-        return Results.BadRequest("Product not found.");
-    }
+        return Results.NotFound("Link not found.");
+
+    return await ReplaceLinkAsync(db, school, menuProduct, dto.MenuId, dto.ProductId);
+})
+.RequireAuthorization("Canteen");
+
+// PATCH 
+app.MapPatch("/menu-products/{menuId}/{productId}", async (int menuId, int productId, AppDbContext db, HttpContext http, MenuProductDto dto) =>
+{
+    var school = await GetMySchoolAsync(db, http);
+    if (school == null)
+        return Results.NotFound("School not found.");
+
+    var menuProduct = await db.MenuProducts
+        .FirstOrDefaultAsync(cp => cp.MenuId == menuId && cp.ProductId == productId && cp.Menu.SchoolId == school.Id);
+    if (menuProduct is null)
+        return Results.NotFound("Link not found.");
+
+    var newMenuId = dto.MenuId > 0 ? dto.MenuId : menuProduct.MenuId;
+    var newProductId = dto.ProductId > 0 ? dto.ProductId : menuProduct.ProductId;
+
+    return await ReplaceLinkAsync(db, school, menuProduct, newMenuId, newProductId);
+})
+.RequireAuthorization("Canteen");
+
+// DELETE 
+app.MapDelete("/menu-products/{menuId}/{productId}", async (int menuId, int productId, AppDbContext db, HttpContext http) =>
+{
+    var school = await GetMySchoolAsync(db, http);
+    if (school == null)
+        return Results.NotFound("School not found.");
+
+    var menuProduct = await db.MenuProducts
+        .FirstOrDefaultAsync(cp => cp.MenuId == menuId && cp.ProductId == productId && cp.Menu.SchoolId == school.Id);
+    if (menuProduct is null)
+        return Results.NotFound("Link not found.");
+
     db.MenuProducts.Remove(menuProduct);
-    var newRecord = new MenuProduct
-    {
-        MenuId = dto.MenuId,
-        ProductId = dto.ProductId
-    };
-    db.MenuProducts.Add(newRecord);
-    await db.SaveChangesAsync();
-    var response = new MenuProductResponseDto
-    {
-        MenuId = newRecord.MenuId,
-        Menu = menuExists.Name,
-
-        ProductId = newRecord.ProductId,
-        Product = productExists.Name,
-
-        Category = productExists.Category?.Name ?? "No Category"
-    };
-
-    return Results.Ok(response);
-});
-
-// PATCH CARDAPIO_PRODUTO
-app.MapPatch("/menu-products/{menuId}/{productId}", async (int menuId, int productId, AppDbContext db, MenuProductDto dto) =>
-    {
-    var menuProduct = await db.MenuProducts.FirstOrDefaultAsync
-    (cp => cp.MenuId == menuId && cp.ProductId == productId);
-    if (menuProduct is null)
-    {
-        return Results.NotFound("Link not found.");
-    }
-    if (dto.MenuId > 0)
-    {
-        var menuExists = await db.Menus.FindAsync(dto.MenuId);
-        if (menuExists is null)
-        {
-            return Results.BadRequest("Menu not found.");
-        }
-        menuProduct.MenuId = dto.MenuId;
-    }
-    if (dto.ProductId > 0)
-    {
-        var productExists = await db.Products.FindAsync(dto.ProductId);
-        if (productExists is null)
-        {
-            return Results.BadRequest("Product not found.");
-        }
-        menuProduct.ProductId = dto.ProductId;
-    }
-    await db.SaveChangesAsync();
-
-    var updatedProductMenu  = await db.MenuProducts
-        .Include(cp => cp.Menu)
-        .Include(cp => cp.Product).ThenInclude(p => p.Category)
-        .FirstOrDefaultAsync(cp => cp.MenuId == menuProduct.MenuId && cp.ProductId == menuProduct.ProductId);
-
-    if (updatedProductMenu  is null) return Results.BadRequest("Error retrieving updated link.");
-
-    var response = new MenuProductResponseDto
-    {
-        MenuId = updatedProductMenu.MenuId,
-        Menu = updatedProductMenu.Menu.Name,
-        ProductId = updatedProductMenu.ProductId,
-        Product = updatedProductMenu.Product.Name,
-        Category = updatedProductMenu.Product.Category?.Name ?? "No Category"
-    };
-    return Results.Ok(response);
-});
-
-// DELETE CARDAPIO_PRODUTO
-app.MapDelete("/menu-products/{menuId}/{productId}",async (int menuId, int productId, AppDbContext db) =>
-{
-    var menuProducts = await db.MenuProducts.FirstOrDefaultAsync
-    (cp => cp.MenuId == menuId && cp.ProductId == productId);
-    if (menuProducts is null)
-    {
-        return Results.NotFound("Link not found.");
-    }
-    db.MenuProducts.Remove(menuProducts);
     await db.SaveChangesAsync();
     return Results.NoContent();
-});
+})
+.RequireAuthorization("Canteen");
+}
 
-        }
-    }
+private static async Task<IResult> ReplaceLinkAsync(
+    AppDbContext db, School school, MenuProduct current, int newMenuId, int newProductId)
+{
+    var menu = await db.Menus.FirstOrDefaultAsync(m => m.Id == newMenuId && m.SchoolId == school.Id);
+    if (menu is null)
+        return Results.BadRequest("Menu not found.");
+
+    var product = await db.Products.Include(p => p.Category)
+        .FirstOrDefaultAsync(p => p.Id == newProductId && p.SchoolId == school.Id);
+    if (product is null)
+        return Results.BadRequest("Product not found.");
+
+    var response = new MenuProductResponseDto
+    {
+        MenuId = menu.Id,
+        Menu = menu.Name,
+        ProductId = product.Id,
+        Product = product.Name,
+        Category = product.Category?.Name ?? "No Category"
+    };
+
+    if (current.MenuId == newMenuId && current.ProductId == newProductId)
+        return Results.Ok(response);
+
+    var alreadyLinked = await db.MenuProducts.AnyAsync(cp => cp.MenuId == newMenuId && cp.ProductId == newProductId);
+    if (alreadyLinked)
+        return Results.BadRequest("This product is already in the menu.");
+
+    db.MenuProducts.Remove(current);
+    db.MenuProducts.Add(new MenuProduct { MenuId = newMenuId, ProductId = newProductId });
+    await db.SaveChangesAsync();
+
+    return Results.Ok(response);
+}
+}
 }
