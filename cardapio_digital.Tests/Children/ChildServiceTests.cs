@@ -33,7 +33,7 @@ public class ChildServiceTests
             Name = "Pedro",
             BirthDate = new DateTime(2018, 5, 10),
             Phone = "81986453728",
-            SchoolId = 1
+            SchoolCode = "ABC123"
         };
 
         // Act
@@ -78,7 +78,7 @@ public class ChildServiceTests
             Name = "Pedro",
             BirthDate = new DateTime(2018, 5, 10),
             Phone = "81986453728",
-            SchoolId = 999
+            SchoolCode = "ABC123"
         };
 
         // Act
@@ -101,7 +101,7 @@ public class ChildServiceTests
             Name = "",
             BirthDate = new DateTime(2018, 5, 10),
             Phone = "81986453728",
-            SchoolId = 1
+            SchoolCode = "ABC123"
         };
 
         // Act
@@ -124,7 +124,7 @@ public class ChildServiceTests
             Name = "Pedro",
             BirthDate = default,
             Phone = "81986453728",
-            SchoolId = 1
+            SchoolCode = "ABC123"
         };
 
         // Act
@@ -147,7 +147,7 @@ public class ChildServiceTests
             Name = "Pedro",
             BirthDate = new DateTime(2018, 5, 10),
             Phone = "",
-            SchoolId = 1
+            SchoolCode = "ABC123"
         };
 
         // Act

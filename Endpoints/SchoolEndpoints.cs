@@ -42,30 +42,15 @@ app.MapGet("/schools/all", async (AppDbContext db) =>
             Address = s.Address,
             Phone = s.Phone,
             Shifts = s.Shifts,
+            Code = s.Code,
             CanteenUserId = s.UserId,
-            CanteenName = s.User.Name
+            CanteenName = s.User.Name,
+            CanteenEmail = s.User.Email
+            
         })
         .ToListAsync();
 
     return Results.Ok(schools);
-})
-.RequireAuthorization("Administrator");
-
-//GET CANTINAS DISPONÍVEIS
-app.MapGet("/schools/available-canteens", async (AppDbContext db) =>
-{
-    var canteens = await db.User
-        .Where(u => u.Role == UserRole.Canteen &&
-                    !db.Schools.Any(s => s.UserId == u.Id))
-        .Select(u => new
-        {
-            u.Id,
-            u.Name,
-            u.Email
-        })
-        .ToListAsync();
-
-    return Results.Ok(canteens);
 })
 .RequireAuthorization("Administrator");
 
@@ -84,30 +69,9 @@ return Results.Ok(school);
 })
 .RequireAuthorization("Canteen");
 
-// GET OPÇÕES DE ESCOLAS - usado pelo cadastro do Responsável/Filho
-app.MapGet("/schools/options", async (AppDbContext db) =>
-{
-    var schools = await db.Schools
-        .OrderBy(s => s.Name)
-        .Select(s => new SchoolOptionDto
-        {
-            Id = s.Id,
-            Name = s.Name
-        })
-        .ToListAsync();
-
-    return Results.Ok(schools);
-})
-.RequireAuthorization("Parent");
-
 //POST ESCOLA
-app.MapPost("/schools",
-async (SchoolDto dto,HttpContext http,SchoolService service)=>
-{
-    var userId = int.Parse(http.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
-    return await service.Register(dto, userId);
-})
+app.MapPost("/schools",async (SchoolDto dto, SchoolService service) => 
+await service.Register(dto))
 .RequireAuthorization("Administrator");
 
 
@@ -153,12 +117,22 @@ app.MapPatch("/schools/{id}", async (int id, AppDbContext db, SchoolDto dto) =>
 .RequireAuthorization("Administrator");
 
 //DELETE 
-app.MapDelete("/schools/{id}", async (int id,AppDbContext db ) =>
+app.MapDelete("/schools/{id}", async (int id, AppDbContext db) =>
 {
-    var school = await db.Schools.FindAsync(id);
-    if (school is null) return Results.NotFound("School not found!");
+    var school = await db.Schools
+        .Include(s => s.User)
+        .FirstOrDefaultAsync(s => s.Id == id);
+
+    if (school is null)
+        return Results.NotFound("School not found!");
+
     db.Schools.Remove(school);
+
+    if (school.User is not null)
+        db.User.Remove(school.User);
+
     await db.SaveChangesAsync();
+
     return Results.NoContent();
 })
 .RequireAuthorization("Administrator");

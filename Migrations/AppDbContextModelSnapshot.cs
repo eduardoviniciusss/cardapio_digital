@@ -312,6 +312,12 @@ namespace cardapio_digital.Migrations
                         .HasColumnType("text")
                         .HasColumnName("address");
 
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)")
+                        .HasColumnName("code");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
@@ -333,6 +339,10 @@ namespace cardapio_digital.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_schools");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_schools_code");
 
                     b.HasIndex("UserId")
                         .IsUnique()

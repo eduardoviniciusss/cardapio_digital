@@ -40,7 +40,7 @@ public class SchoolServiceTests
         };
 
         // Act
-        var result = await service.Register(dto, 999);
+        var result = await service.Register(dto);
 
         // Assert
         Assert.IsType<BadRequest<string>>(result);
@@ -76,7 +76,7 @@ public class SchoolServiceTests
         };
 
         // Act
-        var result = await service.Register(dto, 1);
+        var result = await service.Register(dto);
 
         // Assert
         Assert.IsType<BadRequest<string>>(result);
@@ -112,7 +112,7 @@ public class SchoolServiceTests
         };
 
         // Act
-        var result = await service.Register(dto, 1);
+        var result = await service.Register(dto);
 
         // Assert
         Assert.IsType<BadRequest<string>>(result);
@@ -148,7 +148,7 @@ public class SchoolServiceTests
         };
 
         // Act
-        var result = await service.Register(dto, 1);
+        var result = await service.Register(dto);
 
         // Assert
         Assert.IsType<BadRequest<string>>(result);
@@ -181,7 +181,7 @@ public class SchoolServiceTests
         };
 
         // Act
-        var result = await service.Register(dto, 1);
+        var result = await service.Register(dto);
 
         // Assert
         Assert.IsType<BadRequest<string>>(result);

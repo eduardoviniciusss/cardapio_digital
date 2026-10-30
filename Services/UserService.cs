@@ -27,9 +27,6 @@ namespace cardapio_digital.Services
      if(string.IsNullOrWhiteSpace(dto.Password))
      return Results.BadRequest("Password is required");
 
-     if(!Enum.IsDefined(typeof(UserRole), dto.Role))
-     return Results.BadRequest("Invalid user role");
-
     var userExists = await _context.User.AnyAsync(x => x.Email == dto.Email);
 
     if(userExists)
@@ -42,7 +39,7 @@ namespace cardapio_digital.Services
     Name = dto.Name,
     Email = dto.Email,
     PasswordHash = hash,
-    Role = dto.Role,
+    Role = UserRole.Parent,
   };
   _context.User.Add(user);//Cria objeto
   await _context.SaveChangesAsync();//Salva no banco

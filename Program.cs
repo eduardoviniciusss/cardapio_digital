@@ -12,6 +12,7 @@ using System.Text;
 using cardapio_digital.Services;
 using Microsoft.OpenApi;
 using cardapio_digital.Middleware;
+using cardapio_digital.Enums;
 
 
 
@@ -119,8 +120,27 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-  var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-  db.Database.Migrate();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+
+    // Admin inicial
+    var adminEmail = builder.Configuration["Admin:Email"];
+    var adminPassword = builder.Configuration["Admin:Password"];
+
+    if (!string.IsNullOrWhiteSpace(adminEmail) &&
+        !string.IsNullOrWhiteSpace(adminPassword) &&
+        !db.User.Any(u => u.Role == UserRole.Administrator))
+    {
+        db.User.Add(new User
+        {
+            Name = builder.Configuration["Admin:Name"] ?? "Administrador",
+            Email = adminEmail,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword),
+            Role = UserRole.Administrator
+        });
+
+        db.SaveChanges();
+    }
 }
 
 app.UseCors("Frontend");

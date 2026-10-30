@@ -17,7 +17,9 @@ namespace cardapio_digital.Dtos
 
         public required List<Shift> Shifts { get; set; } = new();
 
-        public int CanteenUserId { get; set; }
+        public string? CanteenName { get; set; }
+        public string? CanteenEmail { get; set; }
+        public string? CanteenPassword { get; set; }
     
     }
 }

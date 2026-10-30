@@ -127,6 +127,14 @@ namespace cardapio_digital
            .HasIndex(o => new { o.ChildId, o.MenuId, o.Date })
            .IsUnique();
 
+           modelBuilder.Entity<School>()
+           .HasIndex(s => s.Code)
+           .IsUnique();
+
+           modelBuilder.Entity<School>()
+           .Property(s => s.Code)
+           .HasMaxLength(12);
+
             
         }
 

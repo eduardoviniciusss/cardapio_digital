@@ -14,7 +14,7 @@ public class ChildService
         _context = context;
     }
 
-    public async Task<IResult> Register( ChildRegistrationDto dto,int userId)
+    public async Task<IResult> Register(ChildRegistrationDto dto, int userId)
     {
         if (string.IsNullOrWhiteSpace(dto.Name))
             return Results.BadRequest("Name is required.");
@@ -22,8 +22,8 @@ public class ChildService
         if (string.IsNullOrWhiteSpace(dto.Phone))
             return Results.BadRequest("Phone is required.");
 
-        if (dto.SchoolId <= 0)
-            return Results.BadRequest("Invalid school.");
+        if (string.IsNullOrWhiteSpace(dto.SchoolCode))
+            return Results.BadRequest("School code is required.");
 
         if (dto.BirthDate == default)
             return Results.BadRequest("Birth date is required.");
@@ -38,11 +38,13 @@ public class ChildService
         if (parent.User?.Role != UserRole.Parent)
             return Results.BadRequest("The authenticated user is not a parent.");
 
+        var code = dto.SchoolCode.Trim().ToUpperInvariant();
+
         var school = await _context.Schools
-            .FirstOrDefaultAsync(e => e.Id == dto.SchoolId);
+            .FirstOrDefaultAsync(e => e.Code == code);
 
         if (school == null)
-            return Results.UnprocessableEntity("School not found.");
+            return Results.UnprocessableEntity("Invalid school code.");
 
         var existingChild = await _context.Children
             .FirstOrDefaultAsync(f =>
@@ -52,7 +54,7 @@ public class ChildService
 
         if (existingChild != null)
         {
-            if (existingChild.SchoolId == dto.SchoolId)
+            if (existingChild.SchoolId == school.Id)
             {
                 return Results.BadRequest("This child is already registered at this school.");
             }
@@ -66,7 +68,7 @@ public class ChildService
             BirthDate = dto.BirthDate,
             Phone = dto.Phone,
             ParentId = parent.Id,
-            SchoolId = dto.SchoolId
+            SchoolId = school.Id
         };
 
         _context.Children.Add(child);

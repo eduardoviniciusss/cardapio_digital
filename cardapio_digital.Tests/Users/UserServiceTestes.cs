@@ -58,8 +58,7 @@ public class UserServiceTests
         {
             Name = "Carlos",
             Email = "eduardo@gmail.com",
-            Password = "654321",
-            Role = UserRole.Parent
+            Password = "654321"
         };
 
         // Act
@@ -81,8 +80,7 @@ public class UserServiceTests
         {
             Name = "Eduardo",
             Email = "eduardo@gmail.com",
-            Password = "123456",
-            Role = UserRole.Parent
+            Password = "123456"
         };
 
         // Act
@@ -110,8 +108,7 @@ public class UserServiceTests
         {
             Name = "Eduardo",
             Email = "eduardo@gmail.com",
-            Password = "123456",
-            Role = (UserRole)999
+            Password = "123456"
         };
 
         // Act

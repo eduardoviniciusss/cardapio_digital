@@ -21,6 +21,8 @@ namespace cardapio_digital.Entities
 
         public User User { get; set; }=null!;
 
+        public string Code { get; set; } = string.Empty;
+
         public ICollection<Child> Children { get; set; } = new List<Child>();
 
         public ICollection<Product> Products { get; set; } = new List<Product>();

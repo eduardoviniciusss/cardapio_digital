@@ -7,11 +7,11 @@ namespace cardapio_digital.Dtos
 {
     public class ChildRegistrationDto
     {
-        public required string Name { get; set; }
-        public DateTime BirthDate { get; set; }
-        public string Phone { get; set; } = string.Empty;
-        public int SchoolId { get; set; }
-        public int ParentId { get; set; }
+      public required string Name { get; set; }
+      public DateTime BirthDate { get; set; }
+      public string Phone { get; set; } = string.Empty;
+      public string SchoolCode { get; set; } = string.Empty;
+      public int ParentId { get; set; }
     }
  
 }
